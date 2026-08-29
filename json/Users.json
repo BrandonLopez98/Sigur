@@ -1,0 +1,13 @@
+[
+    {
+  "email": "esteban@exale.com",
+  "passwordHash": "tu_password_encriptado_o_texto"
+},
+{
+  "email": "estean@example.m",
+  "passwordHash": "tu_password_encriptado_o_texto"
+},{
+  "email": "estan@exple.com",
+  "passwordHash": "tu_password_encriptado_o_texto"
+}
+]
