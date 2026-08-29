@@ -3,6 +3,18 @@ const router = express.Router();
 
 const postUser = require('../controllers/User/PostUser');   // El unitario que ya te funciona
 const postUsers = require('../controllers/User/PostUsers'); // El masivo que acabamos de crear
+const getUsers = require('../controllers/User/getUsers')
+
+router.get('/', async (req, res) => {
+  try {
+    const { email } = req.query; // Capturamos el email si viene en la URL (ej: /user?email=prueba@correo.com)
+    
+    const resultado = await getUsers(email);
+    return res.status(200).json(resultado);
+  } catch (error) {
+    return res.status(404).json({ error: error.message });
+  }
+});
 
 router.post('/', async (req, res) => {
   try {
