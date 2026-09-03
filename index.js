@@ -18,6 +18,13 @@
 //                       `=---='
 //     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+//DB_User=estebanlopez
+//DB_Password=
+//DB_host=localhost
+//DB_Name=sigur
+//PORT=3001
+
 const server = require('./src/app.js');
 const { conn } = require('./src/db.js');
 const PORT = process.env.PORT || 3001;
