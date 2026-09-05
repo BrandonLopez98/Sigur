@@ -4,7 +4,7 @@ module.exports = async (id) => {
   try {
     // Si llega un id, buscamos únicamente el query con ese id
     if (id) {
-      const query = await Query.findOne({ where: { id } });
+      const query = await Query.findAll({ where: { user_id:id } });
       if (!query) {
         throw new Error(`No se encontró query con el id: ${id}`);
       }
