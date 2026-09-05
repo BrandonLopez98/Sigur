@@ -32,10 +32,14 @@ const PORT = process.env.PORT || 3001;
 const postUsers = require('./src/controllers/User/PostUsers.js');
 const UsersData = require('./json/Users.json');
 
+const postQueriesArray = require('./src/controllers/Query/postQuerys.js');
+const QueriesData = require('./json/Queries.json');
+
 async function loadData() {
   try {
     await postUsers(UsersData);
     console.log('Users data loaded.');
+    await postQueriesArray(QueriesData);
   } catch (error) {
     console.error('Error loading data:', error.message);
   }
