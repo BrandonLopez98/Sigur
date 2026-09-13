@@ -3,13 +3,14 @@ const router = express.Router();
 
 const postQuery = require('../controllers/Query/postQuery');
 const getQuerys = require('../controllers/Query/getQuerys');
+const applyQueryFilters = require('../controllers/Query/filters/applyQueryFilters')
 
 router.get('/', async (req, res) => {
   try {
-    const { user_id } = req.query;
-    
-    const resultado = await getQuerys(user_id);
-    return res.status(200).json(resultado);
+    const userid = (req.headers.user_id);
+    const resultado = await getQuerys(userid);
+    const filtrado = applyQueryFilters(resultado, req.query);
+    return res.status(200).json(filtrado);
   } catch (error) {
     return res.status(404).json({ error: error.message });
   }
