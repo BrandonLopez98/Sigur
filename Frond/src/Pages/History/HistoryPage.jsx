@@ -5,7 +5,7 @@ import { getQueries } from '../../services/queriesApi'
 import './HistoryPage.css'
 
 // Temporal: este valor vendrá del usuario autenticado cuando hagamos login.
-const CURRENT_USER_ID = 'c5f47e93-d3fe-4547-9061-982326dee426'
+const CURRENT_USER_ID = '16bc6940-894d-4bf5-a6ee-3bd9d4aea843'
 
 // Estado inicial para todos los filtros.
 const INITIAL_FILTERS = {
@@ -13,6 +13,8 @@ const INITIAL_FILTERS = {
   status: '',
   risk_level: '',
   document_type: '',
+  date_from: '',
+  date_to: '',
 }
 
 /**
@@ -83,17 +85,13 @@ function HistoryPage() {
           <h1>Historial de consultas</h1>
           <p>{visibleQueries.length} resultados encontrados</p>
         </div>
-
-        {/* La exportación se programará cuando definamos el formato del CSV. */}
-        <button type="button" className="history-page__export">
-          ↓ Exportar CSV
-        </button>
       </header>
 
-      <FilterPanel
-        filters={filters}
-        onFiltersChange={setFilters}
-      />
+   <FilterPanel
+  filters={filters}
+  onFiltersChange={setFilters}
+  resultCount={visibleQueries.length}
+/>
 
       {loading && (
         <p className="history-page__message">Cargando consultas...</p>
