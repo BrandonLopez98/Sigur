@@ -1,58 +1,60 @@
-import { useState } from 'react';
-import Navbar from './components/Navbar/Navbar';
-import LoginPage from './pages/Login/LoginPage';
-import HistoryPage from './pages/History/HistoryPage';
+import { useState } from 'react'
+import Navbar from './components/Navbar/Navbar'
+import LoginPage from './pages/Login/LoginPage'
+import HistoryPage from './pages/History/HistoryPage'
+import NewQueryPage from './pages/NewQuery/NewQueryPage'
 
-const SESSION_KEY = 'verifik_session';
+const SESSION_KEY = 'verifik_session'
 
-/**
- * Recupera una sesión guardada sin bloquear la app si el dato está dañado.
- */
 function getSavedSession() {
   try {
-    const savedSession = localStorage.getItem(SESSION_KEY);
-    return savedSession ? JSON.parse(savedSession) : null;
+    const savedSession = localStorage.getItem(SESSION_KEY)
+    return savedSession ? JSON.parse(savedSession) : null
   } catch {
-    return null;
+    return null
   }
 }
 
-/**
- * Controla qué pantalla se muestra según exista o no una sesión.
- */
 function App() {
-  const [session, setSession] = useState(getSavedSession);
+  const [session, setSession] = useState(getSavedSession)
+  const [activePage, setActivePage] = useState('history')
 
-  /**
-   * Guarda token y usuario después de un login exitoso.
-   */
   function handleLogin(newSession) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
-    setSession(newSession);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(newSession))
+    setSession(newSession)
+    setActivePage('history')
   }
 
-  /**
-   * Temporal: más adelante conectaremos las demás páginas del menú.
-   */
   function handleNavigation(page) {
-    console.log(`Navegar a: ${page}`);
+    // Por ahora estas son las dos páginas ya construidas.
+    if (page === 'history' || page === 'new-query') {
+      setActivePage(page)
+    }
   }
 
-  // Si no existe sesión, la primera pantalla será Login.
+  function handleQueryCreated() {
+    // Al crear una consulta volvemos al historial para verla en estado pendiente.
+    setActivePage('history')
+  }
+
   if (!session) {
-    return <LoginPage onLogin={handleLogin} />;
+    return <LoginPage onLogin={handleLogin} />
   }
 
   return (
     <div className="app">
-      <Navbar
-        activePage="history"
-        onNavigate={handleNavigation}
-      />
+      <Navbar activePage={activePage} onNavigate={handleNavigation} />
 
-      <HistoryPage token={session.token} />
+      {activePage === 'new-query' ? (
+        <NewQueryPage
+          token={session.token}
+          onQueryCreated={handleQueryCreated}
+        />
+      ) : (
+        <HistoryPage token={session.token} />
+      )}
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
