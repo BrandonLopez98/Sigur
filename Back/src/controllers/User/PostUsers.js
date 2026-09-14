@@ -1,35 +1,49 @@
+const bcrypt = require('bcryptjs');
 const { User } = require('../../db');
 
+// Número de rondas usadas para cifrar las contraseñas.
+const SALT_ROUNDS = 12;
+
+/**
+ * Crea varios usuarios iniciales desde Users.json.
+ * La contraseña del JSON se cifra antes de guardarse en la base de datos.
+ */
 module.exports = async (usuariosArray) => {
   try {
-    // Validar que se reciba un arreglo válido y no esté vacío
     if (!Array.isArray(usuariosArray) || usuariosArray.length === 0) {
-      throw new Error('Se requiere un arreglo de usuarios válido para el registro masivo.');
+      throw new Error('Se requiere un arreglo de usuarios válido.');
     }
 
     const resultados = [];
     const errores = [];
 
-    // Validar y procesar cada usuario
-    for (let i = 0; i < usuariosArray.length; i++) {
-      const { email, passwordHash, status, role } = usuariosArray[i];
+    for (let index = 0; index < usuariosArray.length; index += 1) {
+      // passwordHash es el nombre actual del JSON; contiene la contraseña inicial.
+      const {
+        email,
+        passwordHash: password,
+        status,
+        role,
+      } = usuariosArray[index];
 
-      if (!email || !passwordHash) {
-        errores.push(`El usuario en la posición ${i} no tiene email o passwordHash.`);
+      if (!email || !password) {
+        errores.push(`El usuario en la posición ${index} no tiene email o contraseña.`);
         continue;
       }
 
-      // Verificar si ya existe en la base de datos
       const usuarioExistente = await User.findOne({ where: { email } });
+
       if (usuarioExistente) {
         errores.push(`El correo ${email} ya está registrado.`);
         continue;
       }
 
-      // Crear el usuario individualmente para respetar hooks o defaults si aplica
+      // Nunca guardamos la contraseña original directamente en la base.
+      const encryptedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
       const nuevoUsuario = await User.create({
         email,
-        password_hash: passwordHash,
+        password_hash: encryptedPassword,
         status,
         role,
       });
@@ -37,14 +51,9 @@ module.exports = async (usuariosArray) => {
       resultados.push(nuevoUsuario);
     }
 
-    // Si hubo errores, puedes decidir si retornar los creados junto con los errores o lanzar un error general
-    if (errores.length > 0 && resultados.length === 0) {
-      throw new Error(`Falló el registro masivo: ${errores.join(' | ')}`);
-    }
-
     return {
       creados: resultados,
-      errores: errores.length > 0 ? errores : undefined
+      errores: errores.length > 0 ? errores : undefined,
     };
   } catch (error) {
     console.error('Error en el registro masivo de usuarios:', error.message);

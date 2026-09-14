@@ -5,7 +5,7 @@ import { getQueries } from '../../services/queriesApi'
 import './HistoryPage.css'
 
 // Temporal: este valor vendrá del usuario autenticado cuando hagamos login.
-const CURRENT_USER_ID = '16bc6940-894d-4bf5-a6ee-3bd9d4aea843'
+const CURRENT_USER_ID = '424449d2-89e7-4ae0-91e7-d3ce1686591d'
 
 // Estado inicial para todos los filtros.
 const INITIAL_FILTERS = {
