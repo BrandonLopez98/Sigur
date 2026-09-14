@@ -1,14 +1,16 @@
-import Navbar from './components/Navbar'
-import HistoryPage from './Pages/HistoryPage'
-import './App.css'
+import Navbar from './components/Navbar/Navbar'
+import HistoryPage from './pages/History/HistoryPage'
 
 /**
- * Componente principal de la aplicación.
+ * Punto de entrada de las páginas de la aplicación.
  */
 function App() {
-  // Por ahora solo existe la pantalla de historial.
+  /**
+   * Temporal: muestra en consola a qué página se quiere navegar.
+   * Luego aquí conectaremos el sistema de rutas.
+   */
   function handleNavigation(page) {
-    console.log(`Navegación futura a: ${page}`)
+    console.log(`Navegar a: ${page}`)
   }
 
   return (

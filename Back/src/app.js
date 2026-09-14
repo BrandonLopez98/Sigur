@@ -15,12 +15,18 @@ server.use(bodyParser.json({ limit: '50mb' }));
 server.use(cookieParser());
 server.use(morgan('dev'));
 
-// Configurar CORS usando el middleware cors
+// Permite que el frontend de Vite use esta API.
 server.use(cors({
-  origin: 'http://localhost:3000', // Actualiza el dominio para que coincida con tu aplicación front-end
+  origin: 'http://localhost:5173',
   credentials: true,
-  methods: 'GET, POST, OPTIONS, PUT, DELETE',
-  allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
+  methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'user_id',
+  ],
 }));
 
 server.use('/', routes);
