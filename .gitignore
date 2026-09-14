@@ -141,3 +141,23 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Editores
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.swp
+*.swo
+
+# Archivos temporales
+*.tmp
+*.temp
