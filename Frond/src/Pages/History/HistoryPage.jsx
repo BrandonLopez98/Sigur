@@ -4,9 +4,6 @@ import QueryCard from '../../components/QueryCard/QueryCard'
 import { getQueries } from '../../services/queriesApi'
 import './HistoryPage.css'
 
-// Temporal: este valor vendrá del usuario autenticado cuando hagamos login.
-const CURRENT_USER_ID = '424449d2-89e7-4ae0-91e7-d3ce1686591d'
-
 // Estado inicial para todos los filtros.
 const INITIAL_FILTERS = {
   search: '',
@@ -20,7 +17,7 @@ const INITIAL_FILTERS = {
 /**
  * Página que obtiene y presenta el historial de consultas del usuario.
  */
-function HistoryPage() {
+function HistoryPage({ userId }) {
   const [queries, setQueries] = useState([])
   const [filters, setFilters] = useState(INITIAL_FILTERS)
   const [loading, setLoading] = useState(true)
@@ -39,7 +36,7 @@ function HistoryPage() {
       try {
         // search se aplica localmente; los demás filtros van al backend.
         const { search, ...apiFilters } = filters
-        const data = await getQueries(CURRENT_USER_ID, apiFilters)
+        const data = await getQueries(userId, apiFilters)
 
         if (!cancelled) {
           setQueries(data)
@@ -60,7 +57,7 @@ function HistoryPage() {
     return () => {
       cancelled = true
     }
-  }, [filters.status, filters.risk_level, filters.document_type])
+  }, [userId, filters.status, filters.risk_level, filters.document_type])
 
   /**
    * Busca por nombre o documento entre las consultas ya obtenidas.
@@ -87,11 +84,11 @@ function HistoryPage() {
         </div>
       </header>
 
-   <FilterPanel
-  filters={filters}
-  onFiltersChange={setFilters}
-  resultCount={visibleQueries.length}
-/>
+      <FilterPanel
+        filters={filters}
+        onFiltersChange={setFilters}
+        resultCount={visibleQueries.length}
+      />
 
       {loading && (
         <p className="history-page__message">Cargando consultas...</p>
