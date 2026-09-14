@@ -2,20 +2,21 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const cors = require('cors'); // Asegúrate de haber instalado el paquete 'cors'
+const cors = require('cors');
 const routes = require('./routes/index.js');
-require('dotenv').config(); // Asegúrate de haber creado un archivo .env
+
+require('dotenv').config();
 
 const server = express();
-
 server.name = 'API';
 
+// Middlewares para leer bodies, cookies y registrar peticiones.
 server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 server.use(bodyParser.json({ limit: '50mb' }));
 server.use(cookieParser());
 server.use(morgan('dev'));
 
-// Permite que el frontend de Vite use esta API.
+// Permite que React en Vite consuma la API.
 server.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
@@ -25,17 +26,19 @@ server.use(cors({
     'X-Requested-With',
     'Content-Type',
     'Accept',
-    'user_id',
+    'Authorization',
   ],
 }));
 
+// Rutas de la API: /Auth, /Query y /User.
 server.use('/', routes);
 
-// Middleware para manejo de errores
+// Manejo centralizado de errores.
 server.use((err, req, res, next) => {
   const status = err.status || 500;
-  const message = err.message || err;
-  console.error(err); // Imprimir el error en la consola
+  const message = err.message || 'Error interno del servidor';
+
+  console.error(err);
   res.status(status).send(message);
 });
 

@@ -1,43 +1,53 @@
-// URL base donde está ejecutándose el backend.
-const API_URL = 'http://localhost:3001'
+const API_URL = 'http://localhost:3001';
 
 /**
- * Obtiene las consultas de un usuario desde el backend.
+ * Obtiene las consultas del usuario autenticado.
  *
- * El usuario se envía por header y los filtros se agregan
- * como parámetros en la URL.
- *
- * @param {string} userId - ID del usuario que consulta el historial.
- * @param {Object} filters - Filtros opcionales, por ejemplo: status o risk_level.
- * @returns {Promise<Array>} Lista de consultas encontradas.
+ * @param {string} token - JWT obtenido al iniciar sesión.
+ * @param {Object} filters - Filtros opcionales.
  */
-export async function getQueries(userId, filters = {}) {
-  // Convierte los filtros recibidos a query params.
-  const params = new URLSearchParams()
+export async function getQueries(token, filters = {}) {
+  const params = new URLSearchParams();
 
   Object.entries(filters).forEach(([key, value]) => {
-    // Evita enviar filtros vacíos.
     if (value) {
-      params.append(key, value)
+      params.append(key, value);
     }
-  })
+  });
 
-  // Solo agrega "?" cuando hay filtros activos.
-  const queryString = params.toString()
-  const url = `${API_URL}/Query${queryString ? `?${queryString}` : ''}`
+  const queryString = params.toString();
+  const url = `${API_URL}/Query${queryString ? `?${queryString}` : ''}`;
 
-  // Realiza la petición y manda el user_id por headers.
   const response = await fetch(url, {
     headers: {
-      user_id: userId,
+      Authorization: `Bearer ${token}`,
     },
-  })
+  });
 
-  // Detiene el flujo si el backend devuelve un error.
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error('No se pudieron cargar las consultas')
+    throw new Error(data.error || 'No se pudieron cargar las consultas.');
   }
 
-  // Convierte la respuesta JSON en un arreglo de consultas.
-  return response.json()
+  return data;
+}
+
+export async function createQuery(token, queryData) {
+  const response = await fetch(`${API_URL}/Query`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(queryData),
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.error || 'No fue posible crear la consulta.')
+  }
+
+  return data
 }

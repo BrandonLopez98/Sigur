@@ -50,7 +50,7 @@ function App() {
         onNavigate={handleNavigation}
       />
 
-      <HistoryPage userId={session.user.id} />
+      <HistoryPage token={session.token} />
     </div>
   );
 }

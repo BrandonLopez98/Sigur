@@ -17,7 +17,7 @@ const INITIAL_FILTERS = {
 /**
  * Página que obtiene y presenta el historial de consultas del usuario.
  */
-function HistoryPage({ userId }) {
+function HistoryPage({ token }) {
   const [queries, setQueries] = useState([])
   const [filters, setFilters] = useState(INITIAL_FILTERS)
   const [loading, setLoading] = useState(true)
@@ -34,9 +34,8 @@ function HistoryPage({ userId }) {
       setError('')
 
       try {
-        // search se aplica localmente; los demás filtros van al backend.
         const { search, ...apiFilters } = filters
-        const data = await getQueries(userId, apiFilters)
+        const data = await getQueries(token, apiFilters)
 
         if (!cancelled) {
           setQueries(data)
@@ -57,7 +56,14 @@ function HistoryPage({ userId }) {
     return () => {
       cancelled = true
     }
-  }, [userId, filters.status, filters.risk_level, filters.document_type])
+  }, [
+    token,
+    filters.status,
+    filters.risk_level,
+    filters.document_type,
+    filters.date_from,
+    filters.date_to,
+  ])
 
   /**
    * Busca por nombre o documento entre las consultas ya obtenidas.

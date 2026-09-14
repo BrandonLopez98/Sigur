@@ -3,30 +3,43 @@ const router = express.Router();
 
 const postQuery = require('../controllers/Query/postQuery');
 const getQuerys = require('../controllers/Query/getQuerys');
-const applyQueryFilters = require('../controllers/Query/filters/applyQueryFilters')
+const applyQueryFilters = require('../controllers/Query/filters/applyQueryFilters');
+const authenticateToken = require('../middlewares/authenticateToken');
 
-router.get('/', async (req, res) => {
+/**
+ * Devuelve únicamente las consultas del usuario autenticado.
+ */
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const userid = (req.headers.user_id);
-    const resultado = await getQuerys(userid);
-    const filtrado = applyQueryFilters(resultado, req.query);
-    return res.status(200).json(filtrado);
+    const queries = await getQuerys(req.user.userId);
+    const filteredQueries = applyQueryFilters(queries, req.query);
+
+    return res.status(200).json(filteredQueries);
   } catch (error) {
-    return res.status(404).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
-router.post('/', async (req, res) => {
+/**
+ * Crea una consulta para el usuario autenticado.
+ * user_id se toma del token; no llega desde el frontend.
+ */
+router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { user_id, document_number } = req.body;
+    const { document_number } = req.body;
 
-    if (!user_id || !document_number) {
-      return res.status(400).json({ error: 'user_id y document_number son obligatorios.' });
+    if (!document_number) {
+      return res.status(400).json({
+        error: 'document_number es obligatorio.',
+      });
     }
 
-    const queryCreada = await postQuery(req.body);
+    const queryCreated = await postQuery({
+      ...req.body,
+      user_id: req.user.userId,
+    });
 
-    return res.status(201).json(queryCreada);
+    return res.status(201).json(queryCreated);
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
