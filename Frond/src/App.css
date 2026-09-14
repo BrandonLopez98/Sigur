@@ -1,0 +1,118 @@
+.app {
+  min-height: 100vh;
+  background: #e8f4fc;
+}
+
+.navbar {
+  height: 56px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #152641;
+  color: white;
+}
+
+.brand,
+.user-area,
+nav {
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  gap: 8px;
+  font-weight: 800;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: #136cfc;
+}
+
+.brand span span {
+  color: #c3f84a;
+}
+
+nav {
+  gap: 4px;
+}
+
+nav button {
+  border: 0;
+  border-radius: 4px;
+  padding: 7px 10px;
+  background: transparent;
+  color: #aab8ce;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+nav button:hover,
+nav .active {
+  background: #136cfc;
+  color: white;
+}
+
+.user-area {
+  gap: 12px;
+}
+
+.credits {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #c3f84a;
+  color: #152641;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #136cfc;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 18px 28px;
+}
+
+.page h1 {
+  margin: 0;
+  font-size: 27px;
+}
+
+.page p {
+  margin-top: 5px;
+  color: #617391;
+}
+
+@media (max-width: 700px) {
+  .navbar {
+    padding: 0 16px;
+  }
+
+  nav {
+    display: none;
+  }
+
+  .credits {
+    display: none;
+  }
+
+  .page {
+    padding: 18px 16px;
+  }
+}

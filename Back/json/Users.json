@@ -1,0 +1,26 @@
+[
+  {
+    "email": "esteban@exale.com",
+    "passwordHash": "Verifik2026!"
+  },
+  {
+    "email": "estean@example.m",
+    "passwordHash": "tu_password_encriptado_o_texto"
+  },
+  {
+    "email": "estan@exple.com",
+    "passwordHash": "tu_password_encriptado_o_texto"
+  },
+  {
+    "email": "maria@example.com",
+    "passwordHash": "tu_password_encriptado_o_texto"
+  },
+  {
+    "email": "admin@sigur.com",
+    "passwordHash": "tu_password_encriptado_o_texto"
+  },
+  {
+    "email": "andres@example.com",
+    "passwordHash": "tu_password_encriptado_o_texto"
+  }
+]
