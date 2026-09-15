@@ -22,7 +22,7 @@
 //DB_User=estebanlopez
 //DB_Password=
 //DB_host=localhost
-//DB_Name=sigur
+//DB_Name=verifik
 //PORT=3001
 //JWT_SECRET=ceeb916d4a6f8a0d66c5d759c018833e12051c007a3e164cd4009771a50acb9f
 

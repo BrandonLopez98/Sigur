@@ -12,6 +12,10 @@ module.exports = (sequelize) => {
       allowNull: false,
       unique: true,
     },
+    email_verified_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     password_hash: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -37,7 +41,7 @@ module.exports = (sequelize) => {
   }, {
     timestamps: true,
     createdAt: 'created_at',
-    updated_at: 'updated_at',
+    updatedAt: 'updated_at'
   });
 
   return User;

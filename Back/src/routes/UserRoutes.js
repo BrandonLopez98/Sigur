@@ -25,16 +25,17 @@ router.post('/', async (req, res) => {
     } 
     
     // Si es un objeto único (registro individual)
-    const { email, passwordHash, status, role } = req.body;
+const { email, password, status, role } = req.body
 
-    if (!email || !passwordHash) {
-      return res.status(400).json({ 
-        error: 'El correo electrónico y la contraseña son obligatorios en el cuerpo de la solicitud.' 
-      });
-    }
+if (!email || !password) {
+  return res.status(400).json({
+    error: 'El correo electrónico y la contraseña son obligatorios.',
+  })
+}
 
-    const nuevoUsuario = await postUser({ email, passwordHash, status, role });
-    return res.status(201).json(nuevoUsuario);
+const nuevoUsuario = await postUser({ email, password, status, role })
+
+return res.status(201).json(nuevoUsuario);
 
   } catch (error) {
     return res.status(400).json({ error: error.message });
