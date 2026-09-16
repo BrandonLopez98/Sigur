@@ -2,6 +2,7 @@ const { Router } = require('express');
 const userRoutes = require('./UserRoutes'); // Importa tu archivo de rutas de usuario
 const queryRoutes = require('./QueryRoutes')
 const authRoutes = require('./AuthRoutes');
+const packageRoutes = require('./PackageRoutes')
 
 const router = Router();
 
@@ -9,6 +10,6 @@ const router = Router();
 router.use('/Auth', authRoutes);
 router.use('/User', userRoutes);
 router.use('/Query', queryRoutes);
-
+router.use('/Packages', packageRoutes)
 
 module.exports = router;

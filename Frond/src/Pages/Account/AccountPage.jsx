@@ -29,7 +29,7 @@ function getInitials(profile, email) {
 /**
  * Muestra y permite actualizar el perfil del usuario autenticado.
  */
-function AccountPage({ token, onUserUpdated }) {
+function AccountPage({ token, onUserUpdated, onLogout }) {
   const [user, setUser] = useState(null)
   const [formData, setFormData] = useState({
     first_name: '',
@@ -208,6 +208,22 @@ function AccountPage({ token, onUserUpdated }) {
           <button type="submit" disabled={saving}>
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
+
+          <section className="account-content"></section>
+          <div className="account-logout">
+  <div>
+    <h3>Cerrar sesión</h3>
+    <p>Saldrás de Verifik en este dispositivo.</p>
+  </div>
+
+    <button
+      type="button"
+      className="account-logout__button"
+      onClick={onLogout}
+    >
+      Cerrar sesión
+    </button>
+  </div>
         </form>
       </section>
     </main>

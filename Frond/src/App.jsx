@@ -36,6 +36,13 @@ function App() {
     setActivePage('history')
   }
 
+  function handleLogout() {
+  localStorage.removeItem(SESSION_KEY)
+  setSession(null)
+  setCurrentUser(null)
+  setActivePage('history')
+}
+
   function handleNavigation(page) {
     if (
       page === 'history' ||
@@ -64,12 +71,13 @@ function App() {
       />
     )
   } else if (activePage === 'account') {
-    currentPage = (
-      <AccountPage
-        token={session.token}
-        onUserUpdated={setCurrentUser}
-      />
-    )
+   currentPage = (
+  <AccountPage
+    token={session.token}
+    onUserUpdated={setCurrentUser}
+    onLogout={handleLogout}
+  />
+)
   } else {
     currentPage = <HistoryPage token={session.token} />
   }
