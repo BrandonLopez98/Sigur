@@ -18,7 +18,7 @@ server.use(morgan('dev'));
 
 // Permite que React en Vite consuma la API.
 server.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.CORS_ORIGIN,
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
   allowedHeaders: [
@@ -39,7 +39,7 @@ server.use((err, req, res, next) => {
   const message = err.message || 'Error interno del servidor';
 
   console.error(err);
-  res.status(status).send(message);
+  res.status(status).json({ error: message });
 });
 
 module.exports = server;

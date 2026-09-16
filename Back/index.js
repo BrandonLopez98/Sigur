@@ -24,10 +24,9 @@
 //DB_host=localhost
 //DB_Name=verifik
 //PORT=3001
-//JWT_SECRET=ceeb916d4a6f8a0d66c5d759c018833e12051c007a3e164cd4009771a50acb9f
 
 const server = require('./src/app.js');
-const { conn } = require('./src/db.js');
+const { conn, User } = require('./src/db.js');
 const PORT = process.env.PORT || 3001;
 
 const postUsers = require('./src/controllers/User/PostUsers.js');
@@ -38,6 +37,15 @@ const QueriesData = require('./json/Queries.json');
 
 async function loadData() {
   try {
+    // Los datos JSON solo se usan para preparar una base vacía.
+    // Así no se duplican consultas ni se reemplazan usuarios reales al reiniciar.
+    const usersCount = await User.count();
+
+    if (usersCount > 0) {
+      console.log('Database already contains data. Seed skipped.');
+      return;
+    }
+
     await postUsers(UsersData);
     console.log('Users data loaded.');
     await postQueriesArray(QueriesData);
@@ -48,8 +56,8 @@ async function loadData() {
 
 async function startServer() {
   try {
-    // Sincronizamos la base de datos
-    await conn.sync({ force: true });
+    // Crea tablas nuevas si faltan, sin borrar usuarios, consultas o paquetes existentes.
+    await conn.sync();
     console.log('Database synchronized.');
 
     // Ejecutamos la precarga del JSON de usuarios

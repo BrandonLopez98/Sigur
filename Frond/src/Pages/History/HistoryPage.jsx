@@ -23,6 +23,25 @@ function HistoryPage({ token }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  // Solo estos filtros deben solicitar información nueva al backend.
+  // La búsqueda por texto se realiza en el navegador para responder al instante.
+  const apiFilters = useMemo(
+    () => ({
+      status: filters.status,
+      risk_level: filters.risk_level,
+      document_type: filters.document_type,
+      date_from: filters.date_from,
+      date_to: filters.date_to,
+    }),
+    [
+      filters.status,
+      filters.risk_level,
+      filters.document_type,
+      filters.date_from,
+      filters.date_to,
+    ]
+  )
+
   /**
    * Carga consultas al iniciar y cada vez que cambian filtros del backend.
    */
@@ -34,7 +53,6 @@ function HistoryPage({ token }) {
       setError('')
 
       try {
-        const { search, ...apiFilters } = filters
         const data = await getQueries(token, apiFilters)
 
         if (!cancelled) {
@@ -56,14 +74,7 @@ function HistoryPage({ token }) {
     return () => {
       cancelled = true
     }
-  }, [
-    token,
-    filters.status,
-    filters.risk_level,
-    filters.document_type,
-    filters.date_from,
-    filters.date_to,
-  ])
+  }, [token, apiFilters])
 
   /**
    * Busca por nombre o documento entre las consultas ya obtenidas.

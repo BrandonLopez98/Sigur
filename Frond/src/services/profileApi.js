@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001'
+const API_URL = import.meta.env.VITE_API_URL
 
 /**
  * Obtiene la información completa del usuario autenticado:
@@ -44,6 +44,28 @@ export async function updateCurrentUserProfile(token, profileData) {
 
   if (!response.ok) {
     throw new Error(data.error || 'No fue posible actualizar tu perfil.')
+  }
+
+  return data
+}
+
+/**
+ * Envía al backend la contraseña actual y la nueva contraseña.
+ */
+export async function updateCurrentUserPassword(token, passwordData) {
+  const response = await fetch(`${API_URL}/Auth/me/password`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(passwordData),
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.error || 'No fue posible cambiar la contraseña.')
   }
 
   return data

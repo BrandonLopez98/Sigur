@@ -3,7 +3,7 @@ const login = require('../controllers/Auth/Login');
 const authenticateToken = require('../middlewares/authenticateToken')
 const getCurrentUser = require('../controllers/Auth/getCurrentUser')
 const updateCurrentUserProfile = require('../controllers/Auth/updateCurrentUserProfile')
-
+const updateCurrentUserPassword = require('../controllers/Auth/updateCurrentUserPassword')
 
 const router = express.Router();
 
@@ -59,5 +59,22 @@ router.put('/me/profile', authenticateToken, async (req, res) => {
     })
   }
 })
+
+router.put(
+  '/me/password',
+  authenticateToken,
+  async (req, res, next) => {
+    try {
+      const result = await updateCurrentUserPassword(
+        req.user.userId,
+        req.body
+      )
+
+      return res.status(200).json(result)
+    } catch (error) {
+      next(error)
+    }
+  }
+)
 
 module.exports = router;
