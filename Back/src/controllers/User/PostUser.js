@@ -1,37 +1,54 @@
-const { User } = require('../../db');
+const bcrypt = require('bcryptjs')
+const { User, CreditWallet, conn } = require('../../db')
 
-module.exports = async ({ email, passwordHash, status, role }) => {
-  try {
-    // 1. Validar que el email sea obligatorio
-    if (!email) {
-      throw new Error('El correo electrónico es obligatorio para registrar un usuario.');
-    }
+const SALT_ROUNDS = 12
 
-    // 2. Validar que el password_hash sea obligatorio
-    if (!passwordHash) {
-      throw new Error('La contraseña es obligatoria.');
-    }
+/**
+ * Registra un usuario y crea su billetera con saldo inicial en cero.
+ */
+module.exports = async ({ email, password, status, role }) => {
+  const normalizedEmail = email?.trim().toLowerCase()
 
-    // 3. Verificar si ya existe un usuario registrado con el mismo correo
-    const usuarioExistente = await User.findOne({
-      where: { email },
-    });
-
-    if (usuarioExistente) {
-      throw new Error(`Ya existe un usuario registrado con el correo ${email}.`);
-    }
-
-    // 4. Crear el nuevo usuario pasando los campos opcionales por si se envían
-    const nuevoUsuario = await User.create({
-      email,
-      password_hash: passwordHash,
-      status, // Sequelize usará el default ('active') si viene undefined
-      role,   // Sequelize usará el default ('client') si viene undefined
-    });
-
-    return nuevoUsuario;
-  } catch (error) {
-    console.error('Error al registrar el usuario:', error.message);
-    throw error;
+  if (!normalizedEmail || !password) {
+    throw new Error('El correo electrónico y la contraseña son obligatorios.')
   }
-};
+
+  return conn.transaction(async (transaction) => {
+    const existingUser = await User.findOne({
+      where: { email: normalizedEmail },
+      transaction,
+    })
+
+    if (existingUser) {
+      throw new Error('Ya existe un usuario con este correo.')
+    }
+
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS)
+
+    const user = await User.create(
+      {
+        email: normalizedEmail,
+        password_hash: passwordHash,
+        status,
+        role,
+      },
+      { transaction }
+    )
+
+    // Toda cuenta nueva empieza sin créditos.
+    await CreditWallet.create(
+      {
+        user_id: user.id,
+        balance: 0,
+      },
+      { transaction }
+    )
+
+    return {
+      id: user.id,
+      email: user.email,
+      status: user.status,
+      role: user.role,
+    }
+  })
+}

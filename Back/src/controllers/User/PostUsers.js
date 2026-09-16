@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const { User } = require('../../db');
+const { User, CreditWallet, conn } = require('../../db')
 
 // Número de rondas usadas para cifrar las contraseñas.
 const SALT_ROUNDS = 12;
@@ -47,6 +47,10 @@ module.exports = async (usuariosArray) => {
         status,
         role,
       });
+      await CreditWallet.create({
+        user_id: nuevoUsuario.id,
+        balance: 0,
+      })
 
       resultados.push(nuevoUsuario);
     }

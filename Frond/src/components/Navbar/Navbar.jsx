@@ -10,19 +10,32 @@ const links = [
 ]
 
 /**
- * Barra de navegación reutilizable de la aplicación.
- *
- * @param {Object} props
- * @param {string} props.activePage - ID de la página actualmente visible.
- * @param {Function} props.onNavigate - Función que se ejecuta al elegir una opción.
+ * Obtiene las iniciales visibles del usuario.
  */
-function Navbar({ activePage, onNavigate }) {
+function getInitials(user) {
+  const firstName = user?.profile?.first_name?.trim() || ''
+  const lastName = user?.profile?.last_name?.trim() || ''
+
+  if (firstName || lastName) {
+    return `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase()
+  }
+
+  return user?.email?.slice(0, 2).toUpperCase() || 'U'
+}
+
+/**
+ * Barra de navegación reutilizable de la aplicación.
+ */
+function Navbar({ activePage, onNavigate, user }) {
+  const credits = user?.wallet?.balance ?? 0
+  const initials = getInitials(user)
+
   return (
     <header className="navbar">
       <button
         type="button"
         className="navbar__brand"
-        onClick={() => onNavigate('home')}
+        onClick={() => onNavigate('history')}
       >
         <span className="navbar__logo">V</span>
 
@@ -36,7 +49,11 @@ function Navbar({ activePage, onNavigate }) {
           <button
             key={link.id}
             type="button"
-            className={activePage === link.id ? 'navbar__link navbar__link--active' : 'navbar__link'}
+            className={
+              activePage === link.id
+                ? 'navbar__link navbar__link--active'
+                : 'navbar__link'
+            }
             onClick={() => onNavigate(link.id)}
           >
             {link.label}
@@ -50,7 +67,7 @@ function Navbar({ activePage, onNavigate }) {
           className="navbar__credits"
           onClick={() => onNavigate('packages')}
         >
-          ◎ 38 créditos
+          ◎ {credits} créditos
         </button>
 
         <button
@@ -58,8 +75,9 @@ function Navbar({ activePage, onNavigate }) {
           className="navbar__avatar"
           onClick={() => onNavigate('account')}
           aria-label="Abrir mi cuenta"
+          title={user?.email || 'Mi cuenta'}
         >
-          JM
+          {initials}
         </button>
       </div>
     </header>

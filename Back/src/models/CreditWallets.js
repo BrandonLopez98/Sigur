@@ -1,24 +1,36 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize')
 
 module.exports = (sequelize) => {
-  const CreditWallet = sequelize.define('CreditWallet', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-    },
-    user_id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      unique: true,
-    },
-    balance: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-  }, {
-    timestamps: false,
-  });
+  const CreditWallet = sequelize.define(
+    'CreditWallet',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
 
-  return CreditWallet;
-};
+      user_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        unique: true,
+      },
+
+      balance: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        validate: {
+          min: 0,
+        },
+      },
+    },
+    {
+      timestamps: true,
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+    }
+  )
+
+  return CreditWallet
+}

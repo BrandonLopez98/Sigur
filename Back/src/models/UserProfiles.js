@@ -31,7 +31,7 @@ module.exports = (sequelize) => {
   }, {
     timestamps: true,
     createdAt: 'created_at',
-    updated_at: 'updated_at',
+    updatedAt: 'updated_at'
   });
 
   return UserProfile;
