@@ -4,6 +4,7 @@ import LoginPage from './pages/Login/LoginPage'
 import HistoryPage from './pages/History/HistoryPage'
 import NewQueryPage from './pages/NewQuery/NewQueryPage'
 import AccountPage from './pages/Account/AccountPage'
+import PackagesPage from './pages/Packages/PackagesPage'
 import { getCurrentUser } from './services/profileApi'
 
 const SESSION_KEY = 'verifik_session'
@@ -47,7 +48,8 @@ function App() {
     if (
       page === 'history' ||
       page === 'new-query' ||
-      page === 'account'
+      page === 'account' ||
+      page === 'packages'
     ) {
       setActivePage(page)
     }
@@ -78,6 +80,8 @@ function App() {
     onLogout={handleLogout}
   />
 )
+  } else if (activePage === 'packages') {
+    currentPage = <PackagesPage token={session.token} />
   } else {
     currentPage = <HistoryPage token={session.token} />
   }

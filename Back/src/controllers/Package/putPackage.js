@@ -1,4 +1,4 @@
-const { CreditPackage } = require('../../db')
+const { CreditPackage, conn } = require('../../db')
 
 /**
  * Actualiza parcialmente un paquete existente.
@@ -6,7 +6,7 @@ const { CreditPackage } = require('../../db')
 async function putPackage(req, res, next) {
   try {
     const { id } = req.params
-    const { name, credits_amount, price, status } = req.body
+    const { name, credits_amount, price, is_popular, status } = req.body
 
     const packageToUpdate = await CreditPackage.findByPk(id)
 
@@ -33,7 +33,7 @@ async function putPackage(req, res, next) {
 
       if (!Number.isInteger(creditsAmount) || creditsAmount < 1) {
         return res.status(400).json({
-          error: 'credits_amount debe ser un número entero mayor que cero.',
+          error: 'credits_amount debe ser un entero mayor que cero.',
         })
       }
 
@@ -52,6 +52,16 @@ async function putPackage(req, res, next) {
       changes.price = packagePrice
     }
 
+    if (is_popular !== undefined) {
+      if (typeof is_popular !== 'boolean') {
+        return res.status(400).json({
+          error: 'is_popular debe ser true o false.',
+        })
+      }
+
+      changes.is_popular = is_popular
+    }
+
     if (status !== undefined) {
       if (!['active', 'inactive'].includes(status)) {
         return res.status(400).json({
@@ -60,6 +70,11 @@ async function putPackage(req, res, next) {
       }
 
       changes.status = status
+
+      // Un paquete inactivo no debe conservar la etiqueta popular.
+      if (status === 'inactive') {
+        changes.is_popular = false
+      }
     }
 
     if (Object.keys(changes).length === 0) {
@@ -68,9 +83,23 @@ async function putPackage(req, res, next) {
       })
     }
 
-    await packageToUpdate.update(changes)
+    const updatedPackage = await conn.transaction(async (transaction) => {
+      if (changes.is_popular === true) {
+        await CreditPackage.update(
+          { is_popular: false },
+          {
+            where: { is_popular: true },
+            transaction,
+          }
+        )
+      }
 
-    return res.status(200).json(packageToUpdate)
+      await packageToUpdate.update(changes, { transaction })
+
+      return packageToUpdate
+    })
+
+    return res.status(200).json(updatedPackage)
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).json({

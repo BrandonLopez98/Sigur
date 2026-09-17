@@ -26,7 +26,7 @@
 //PORT=3001
 
 const server = require('./src/app.js');
-const { conn, User } = require('./src/db.js');
+const { conn, User, CreditPackage } = require('./src/db.js')
 const PORT = process.env.PORT || 3001;
 
 const postUsers = require('./src/controllers/User/PostUsers.js');
@@ -34,6 +34,7 @@ const UsersData = require('./json/Users.json');
 
 const postQueriesArray = require('./src/controllers/Query/postQuerys.js');
 const QueriesData = require('./json/Queries.json');
+const CreditPackagesData = require('./json/CreditPackages.json')
 
 async function loadData() {
   try {
@@ -54,6 +55,27 @@ async function loadData() {
   }
 }
 
+/**
+ * Carga los paquetes iniciales una sola vez.
+ * Si ya existe un paquete con ese nombre, no lo duplica.
+ */
+async function loadCreditPackages() {
+  try {
+    for (const creditPackage of CreditPackagesData) {
+      await CreditPackage.findOrCreate({
+        where: {
+          name: creditPackage.name,
+        },
+        defaults: creditPackage,
+      })
+    }
+
+    console.log('Credit packages loaded.')
+  } catch (error) {
+    console.error('Error loading credit packages:', error.message)
+  }
+}
+
 async function startServer() {
   try {
     // Crea tablas nuevas si faltan, sin borrar usuarios, consultas o paquetes existentes.
@@ -62,6 +84,7 @@ async function startServer() {
 
     // Ejecutamos la precarga del JSON de usuarios
     await loadData();
+    await loadCreditPackages();
 
     // Iniciamos el servidor
     server.listen(PORT, () => {

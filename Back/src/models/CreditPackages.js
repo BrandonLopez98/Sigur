@@ -1,7 +1,10 @@
 const { DataTypes } = require('sequelize')
 
 /**
- * Paquetes de créditos que el cliente puede adquirir.
+ * Catálogo comercial de créditos.
+ *
+ * Todos los paquetes dan acceso a la misma verificación Verifik.
+ * Solo cambia la cantidad de créditos, el precio y si se destaca como popular.
  */
 module.exports = (sequelize) => {
   const CreditPackage = sequelize.define(
@@ -27,7 +30,6 @@ module.exports = (sequelize) => {
         },
       },
 
-      // Valor del paquete en pesos colombianos.
       price: {
         type: DataTypes.DECIMAL(12, 2),
         allowNull: false,
@@ -36,7 +38,13 @@ module.exports = (sequelize) => {
         },
       },
 
-      // Un paquete inactivo no se muestra ni se puede comprar.
+      // Solo controla la etiqueta visual “Más popular”.
+      is_popular: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+
       status: {
         type: DataTypes.ENUM('active', 'inactive'),
         allowNull: false,

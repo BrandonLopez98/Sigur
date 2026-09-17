@@ -86,7 +86,7 @@ CreditWallet.belongsTo(User, {
 User.hasMany(PaymentTransaction, {
   foreignKey: 'user_id',
   as: 'payment_transactions',
-  onDelete: 'CASCADE',
+  onDelete: 'RESTRICT',
 })
 
 PaymentTransaction.belongsTo(User, {
@@ -98,6 +98,7 @@ PaymentTransaction.belongsTo(User, {
 CreditPackage.hasMany(PaymentTransaction, {
   foreignKey: 'package_id',
   as: 'transactions',
+  onDelete: 'RESTRICT',
 })
 
 PaymentTransaction.belongsTo(CreditPackage, {
