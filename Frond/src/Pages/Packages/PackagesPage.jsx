@@ -27,6 +27,7 @@ function openWompiCheckout(checkout) {
     'amount-in-cents': checkout.amountInCents,
     reference: checkout.reference,
     'signature:integrity': checkout.integritySignature,
+    'redirect-url': checkout.redirectUrl,
   }
 
   Object.entries(fields).forEach(([name, value]) => {

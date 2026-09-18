@@ -15,8 +15,11 @@ async function postPaymentCheckout(req, res, next) {
       })
     }
 
-    if (!process.env.WOMPI_PUBLIC_KEY || !process.env.WOMPI_INTEGRITY_SECRET) {
-      return res.status(500).json({
+    if (
+      !process.env.WOMPI_PUBLIC_KEY ||
+      !process.env.WOMPI_INTEGRITY_SECRET ||
+      !process.env.FRONTEND_URL
+    ) {return res.status(500).json({
         error: 'Las credenciales de Wompi Sandbox no están configuradas.',
       })
     }
@@ -80,6 +83,7 @@ async function postPaymentCheckout(req, res, next) {
         amountInCents,
         reference,
         integritySignature,
+        redirectUrl: process.env.FRONTEND_URL,
       },
     })
   } catch (error) {

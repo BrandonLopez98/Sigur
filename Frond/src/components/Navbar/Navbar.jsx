@@ -6,7 +6,9 @@ const links = [
   { id: 'new-query', label: 'Nueva consulta' },
   { id: 'history', label: 'Historial' },
   { id: 'packages', label: 'Paquetes' },
+  { id: 'transactions', label: 'Transacciones' },
   { id: 'help', label: 'Ayuda' },
+  
 ]
 
 /**

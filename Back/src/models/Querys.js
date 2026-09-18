@@ -27,6 +27,17 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
 
+      // Solo aplica a consultas de vehículo (placa + propietario).
+      owner_document_type: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
+      owner_document_number: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
       expedition_date: {
         type: DataTypes.DATEONLY,
         allowNull: true,
@@ -103,6 +114,17 @@ module.exports = (sequelize) => {
       },
 
       consented_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
+      // Evita descontar o reintegrar el crédito más de una vez.
+      credit_charged_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
+      credit_refunded_at: {
         type: DataTypes.DATE,
         allowNull: true,
       },
