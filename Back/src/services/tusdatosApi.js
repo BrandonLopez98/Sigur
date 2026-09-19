@@ -129,8 +129,32 @@ async function getTusdatosQueryResult(jobId) {
   )
 }
 
+async function getTusdatosReportJson(reportId) {
+  const { baseUrl, authorization } = getTusdatosConfig()
+  const response = await fetch(`${baseUrl}/api/report_json/${encodeURIComponent(reportId)}`, {
+    headers: { Authorization: authorization, Accept: 'application/json' },
+  })
+  return readTusdatosResponse(response, 'No fue posible obtener el reporte JSON.')
+}
+
+async function getTusdatosReportPdf(reportId, documentType) {
+  const { baseUrl, authorization } = getTusdatosConfig()
+  const reportPath = documentType === 'PLACA'
+    ? '/api/v2/report_car_pdf/'
+    : documentType === 'NIT'
+      ? '/api/v2/report_nit_pdf/'
+      : '/api/v2/report_pdf/'
+  const response = await fetch(`${baseUrl}${reportPath}${encodeURIComponent(reportId)}`, {
+    headers: { Authorization: authorization, Accept: 'application/pdf' },
+  })
+  if (!response.ok) throw createProviderError('No fue posible obtener el PDF.', response.status)
+  return Buffer.from(await response.arrayBuffer())
+}
+
 module.exports = {
   launchTusdatosQuery,
   launchTusdatosVehicleQuery,
   getTusdatosQueryResult,
+  getTusdatosReportJson,
+  getTusdatosReportPdf,
 }

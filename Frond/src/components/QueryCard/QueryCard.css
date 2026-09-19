@@ -90,14 +90,19 @@
   color: #991b1b;
 }
 
-.query-card__pdf {
+.query-card__result {
+  border: 0;
+  cursor: pointer;
   border-radius: 8px;
+  padding: 4px 9px;
   background: #e8f4fc;
   color: #136cfc;
+  font-size: 11px;
+  font-weight: 700;
   text-decoration: none;
 }
 
-.query-card__pdf:hover {
+.query-card__result:hover {
   background: #d8ebfa;
 }
 

@@ -51,3 +51,44 @@ export async function createQuery(token, queryData) {
 
   return data
 }
+
+/** Obtiene el resultado detallado de una consulta propia ya finalizada. */
+export async function getQueryResult(token, queryId) {
+  const response = await fetch(`${API_URL}/Query/${queryId}/result`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data.error || 'No fue posible cargar el resultado.')
+  }
+
+  return data
+}
+
+/** Descarga el PDF autenticado sin exponer enlaces del proveedor en el navegador. */
+export async function downloadQueryReportPdf(token, queryId) {
+  const response = await fetch(`${API_URL}/Query/${queryId}/report/pdf`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.error || 'No fue posible descargar el PDF.')
+  }
+
+  const file = await response.blob()
+  const contentDisposition = response.headers.get('content-disposition') || ''
+  const fileName = /filename="?([^";]+)"?/i.exec(contentDisposition)?.[1]
+    || `reporte-verifik-${queryId}.pdf`
+  const fileUrl = URL.createObjectURL(file)
+  const link = document.createElement('a')
+
+  link.href = fileUrl
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(fileUrl)
+}

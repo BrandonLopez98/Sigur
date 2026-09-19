@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import './FilterPanel.css'
 
-const DOCUMENT_TYPES = ['CC', 'CE', 'NIT', 'PAS']
+const DOCUMENT_TYPES = ['CC', 'CE', 'NIT', 'PP', 'PPT', 'INT', 'PLACA']
 
 const STATUS_OPTIONS = [
   { value: 'completed', label: 'Completada' },
   { value: 'pending', label: 'Pendiente' },
+  { value: 'processing', label: 'Procesando' },
   { value: 'failed', label: 'Fallida' },
 ]
 

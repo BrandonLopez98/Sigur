@@ -4,14 +4,16 @@ module.exports = async (user_id) => {
   try {
     // Si llega un id, buscamos únicamente el query con ese id
     if (user_id) {
-      const query = await Query.findAll({ where: { user_id } });
-      if (!query) {
-        throw new Error(`No se encontró query con el id: ${user_id}`);
-      }
-      return query; // Retorna un objeto con el query encontrado
+      return Query.findAll({
+        where: { user_id },
+        // El historial siempre muestra la consulta más reciente primero.
+        order: [['created_at', 'DESC']],
+      });
     }
     // Si no llega ningún id, devolvemos todos los usuarios
-    const querys = await Query.findAll();
+    const querys = await Query.findAll({
+      order: [['created_at', 'DESC']],
+    });
     return querys;
   } catch (error) {
     throw new Error(`Error al obtener los usuarios: ${error.message}`);

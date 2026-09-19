@@ -19,12 +19,13 @@ function formatDate(date) {
  * @param {Object} props
  * @param {Object} props.query - Datos de la consulta obtenidos desde el backend.
  */
-function QueryCard({ query }) {
+function QueryCard({ query, onOpenResult }) {
   // Etiquetas legibles para valores que devuelve el backend.
   const statusLabels = {
     completed: 'Completada',
     pending: 'Pendiente',
     failed: 'Fallida',
+    processing: 'Procesando',
   }
 
   const riskLabels = {
@@ -56,22 +57,20 @@ function QueryCard({ query }) {
           {statusLabels[query.status] || query.status}
         </span>
 
-        {query.risk_level && (
+        {query.risk_level !== 'unknown' && (
           <span className={`query-card__risk query-card__risk--${query.risk_level}`}>
             {riskLabels[query.risk_level]}
           </span>
         )}
 
-        {query.pdf_url && (
-          <a
-            className="query-card__pdf"
-            href={query.pdf_url}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`Abrir PDF de ${query.search_name}`}
+        {query.status === 'completed' && onOpenResult && (
+          <button
+            type="button"
+            className="query-card__result"
+            onClick={() => onOpenResult(query.id)}
           >
-            PDF
-          </a>
+            Ver resultado
+          </button>
         )}
       </div>
     </article>

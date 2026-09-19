@@ -1,5 +1,8 @@
 const { Query } = require('../../db')
-const { getTusdatosQueryResult } = require('../../services/tusdatosApi')
+const {
+  getTusdatosQueryResult,
+  getTusdatosReportJson,
+} = require('../../services/tusdatosApi')
 
 function getRiskLevel(result) {
   if (!result.hallazgo) return 'low'
@@ -13,7 +16,7 @@ function getRiskLevel(result) {
   return 'unknown'
 }
 
-function buildResultSummary(result) {
+function buildResultSummary(result, reportId) {
   const sourceResults = result.results || {}
   const sourceValues = Object.values(sourceResults)
 
@@ -23,6 +26,7 @@ function buildResultSummary(result) {
     sources_checked: Object.keys(sourceResults).length,
     sources_with_findings: sourceValues.filter((value) => value === true).length,
     provider_duration_seconds: result.time || null,
+    provider_report_id: reportId || null,
   }
 }
 
@@ -65,12 +69,21 @@ module.exports = async (req, res, next) => {
     }
 
     if (result.estado === 'finalizado') {
+      const reportId = result.id || query.provider_report_id
+      let reportJson = null
+      try {
+        reportJson = reportId ? await getTusdatosReportJson(reportId) : null
+      } catch (error) {
+        console.error('No fue posible guardar el reporte JSON de Tusdatos:', error.message)
+      }
+
       await query.update({
         status: 'completed',
         risk_level: getRiskLevel(result),
         search_name: result.nombre || query.search_name,
-        provider_response: result,
-        result_summary: buildResultSummary(result),
+        provider_report_id: reportId,
+        provider_response: { result, report: reportJson },
+        result_summary: buildResultSummary(result, reportId),
         completed_at: new Date(),
         provider_error: null,
       })

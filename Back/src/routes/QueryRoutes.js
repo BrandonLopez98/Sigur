@@ -8,6 +8,15 @@ const authenticateToken = require('../middlewares/authenticateToken')
 const postTusdatosTest = require('../controllers/Query/postTusdatosTest')
 const getTusdatosTestResult = require('../controllers/Query/getTusdatosTestResult')
 const getQueryTusdatosStatus = require('../controllers/Query/getQueryTusdatosStatus')
+const postTusdatosWebhook = require('../controllers/Query/postTusdatosWebhook')
+const getQueryResult = require('../controllers/Query/getQueryResult')
+const getQueryReportPdf = require('../controllers/Query/getQueryReportPdf')
+
+/**
+ * Tusdatos llama esta ruta al finalizar una consulta individual.
+ * Tiene su propia autenticación; no usa el JWT de un usuario de Verifik.
+ */
+router.post('/tusdatos/webhook', postTusdatosWebhook)
 
 /**
  * Devuelve únicamente las consultas del usuario autenticado.
@@ -50,6 +59,12 @@ router.get(
   authenticateToken,
   getQueryTusdatosStatus
 )
+
+/** Resultado detallado ya procesado para la vista de Verifik. */
+router.get('/:queryId/result', authenticateToken, getQueryResult)
+
+/** PDF privado: se descarga con el JWT del usuario autenticado. */
+router.get('/:queryId/report/pdf', authenticateToken, getQueryReportPdf)
 
 /**
  * Crea una consulta para el usuario autenticado.

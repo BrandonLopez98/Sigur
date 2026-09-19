@@ -84,6 +84,11 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
 
+      provider_report_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
       // Aquí guardaremos el JSON completo devuelto por Tusdatos.
       provider_response: {
         type: DataTypes.JSON,

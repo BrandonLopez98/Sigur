@@ -17,11 +17,12 @@ const INITIAL_FILTERS = {
 /**
  * Página que obtiene y presenta el historial de consultas del usuario.
  */
-function HistoryPage({ token }) {
+function HistoryPage({ token, onOpenResult }) {
   const [queries, setQueries] = useState([])
   const [filters, setFilters] = useState(INITIAL_FILTERS)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [refreshTick, setRefreshTick] = useState(0)
 
   // Solo estos filtros deben solicitar información nueva al backend.
   // La búsqueda por texto se realiza en el navegador para responder al instante.
@@ -47,6 +48,7 @@ function HistoryPage({ token }) {
    */
   useEffect(() => {
     let cancelled = false
+    let refreshTimeoutId
 
     async function loadQueries() {
       setLoading(true)
@@ -57,6 +59,17 @@ function HistoryPage({ token }) {
 
         if (!cancelled) {
           setQueries(data)
+
+          // Una sola recarga liviana y solo si el webhook aún no ha terminado.
+          const hasPendingQueries = data.some((query) =>
+            ['pending', 'processing'].includes(query.status)
+          )
+
+          if (hasPendingQueries) {
+            refreshTimeoutId = window.setTimeout(() => {
+              setRefreshTick((currentTick) => currentTick + 1)
+            }, 15000)
+          }
         }
       } catch (requestError) {
         if (!cancelled) {
@@ -73,8 +86,9 @@ function HistoryPage({ token }) {
 
     return () => {
       cancelled = true
+      window.clearTimeout(refreshTimeoutId)
     }
-  }, [token, apiFilters])
+  }, [token, apiFilters, refreshTick])
 
   /**
    * Busca por nombre o documento entre las consultas ya obtenidas.
@@ -125,7 +139,11 @@ function HistoryPage({ token }) {
             </p>
           ) : (
             visibleQueries.map((query) => (
-              <QueryCard key={query.id} query={query} />
+              <QueryCard
+                key={query.id}
+                query={query}
+                onOpenResult={onOpenResult}
+              />
             ))
           )}
         </section>

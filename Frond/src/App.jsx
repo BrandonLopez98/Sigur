@@ -6,6 +6,7 @@ import NewQueryPage from './pages/NewQuery/NewQueryPage'
 import AccountPage from './pages/Account/AccountPage'
 import PackagesPage from './pages/Packages/PackagesPage'
 import TransactionsPage from './pages/Transactions/TransactionsPage'
+import QueryResultPage from './pages/QueryResult/QueryResultPage'
 import { getCurrentUser } from './services/profileApi'
 
 const SESSION_KEY = 'verifik_session'
@@ -26,6 +27,7 @@ function App() {
   const [session, setSession] = useState(getSavedSession)
   const [activePage, setActivePage] = useState('history')
   const [currentUser, setCurrentUser] = useState(null)
+  const [selectedQueryId, setSelectedQueryId] = useState(null)
 
   /**
    * Carga el usuario una sola vez al iniciar o restaurar la sesión.
@@ -90,6 +92,11 @@ function App() {
     setActivePage('history')
   }
 
+  function handleOpenResult(queryId) {
+    setSelectedQueryId(queryId)
+    setActivePage('query-result')
+  }
+
   if (!session) {
     return <LoginPage onLogin={handleLogin} />
   }
@@ -115,8 +122,18 @@ function App() {
     currentPage = <PackagesPage token={session.token} />
   } else if (activePage === 'transactions') {
     currentPage = <TransactionsPage token={session.token} />
+  } else if (activePage === 'query-result' && selectedQueryId) {
+    currentPage = (
+      <QueryResultPage
+        token={session.token}
+        queryId={selectedQueryId}
+        onBack={() => setActivePage('history')}
+      />
+    )
   } else {
-    currentPage = <HistoryPage token={session.token} />
+    currentPage = (
+      <HistoryPage token={session.token} onOpenResult={handleOpenResult} />
+    )
   }
 
   return (
