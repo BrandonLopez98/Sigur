@@ -27,6 +27,17 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
 
+      // Solo aplica a consultas de vehículo (placa + propietario).
+      owner_document_type: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
+      owner_document_number: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
       expedition_date: {
         type: DataTypes.DATEONLY,
         allowNull: true,
@@ -73,6 +84,11 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
 
+      provider_report_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+
       // Aquí guardaremos el JSON completo devuelto por Tusdatos.
       provider_response: {
         type: DataTypes.JSON,
@@ -103,6 +119,17 @@ module.exports = (sequelize) => {
       },
 
       consented_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
+      // Evita descontar o reintegrar el crédito más de una vez.
+      credit_charged_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
+      credit_refunded_at: {
         type: DataTypes.DATE,
         allowNull: true,
       },

@@ -1,7 +1,8 @@
 const { CreditPackage } = require('../../db')
+const verifikServiceInfo = require('../../config/verifikServiceInfo')
 
 /**
- * Devuelve los paquetes que están disponibles para compra.
+ * Devuelve el catálogo comercial visible para los clientes.
  */
 async function getPackages(req, res, next) {
   try {
@@ -14,12 +15,16 @@ async function getPackages(req, res, next) {
         'name',
         'credits_amount',
         'price',
-        'created_at',
+        'is_popular',
+        'status',
       ],
-      order: [['price', 'ASC']],
+      order: [['credits_amount', 'ASC']],
     })
 
-    return res.status(200).json(packages)
+    return res.status(200).json({
+      service: verifikServiceInfo,
+      packages,
+    })
   } catch (error) {
     next(error)
   }

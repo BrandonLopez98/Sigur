@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Individual",
+    "credits_amount": 1,
+    "price": 14900,
+    "is_popular": false,
+    "status": "active"
+  },
+  {
+    "name": "Esencial",
+    "credits_amount": 3,
+    "price": 39900,
+    "is_popular": false,
+    "status": "active"
+  },
+  {
+    "name": "Frecuente",
+    "credits_amount": 5,
+    "price": 62900,
+    "is_popular": true,
+    "status": "active"
+  },
+  {
+    "name": "Profesional",
+    "credits_amount": 10,
+    "price": 114900,
+    "is_popular": false,
+    "status": "active"
+  }
+]

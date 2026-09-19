@@ -1,0 +1,152 @@
+.query-result {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: 26px 28px 48px;
+}
+
+.query-result__back {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #136cfc;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.query-result__hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 18px;
+}
+
+.query-result__eyebrow {
+  margin: 0 0 7px;
+  color: #136cfc;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.query-result__hero h1 {
+  margin: 0;
+  color: #152641;
+  font-size: clamp(25px, 4vw, 36px);
+}
+
+.query-result__document,
+.query-result__evidence > p {
+  color: #617391;
+}
+
+.query-result__risk,
+.query-result__count {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.query-result__risk--high,
+.query-result__count--high { background: #fee2e2; color: #991b1b; }
+.query-result__risk--medium,
+.query-result__count--medium { background: #fef3c7; color: #92400e; }
+.query-result__risk--low,
+.query-result__count--low { background: #d1fae5; color: #065f46; }
+.query-result__count--info { background: #e8f4fc; color: #136cfc; }
+
+.query-result__summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 26px 0 16px;
+}
+
+.query-result__summary > div,
+.query-result__download {
+  min-height: 96px;
+  border: 1px solid #d9e4f0;
+  border-radius: 14px;
+  background: #fff;
+  padding: 17px;
+}
+
+.query-result__summary span {
+  display: block;
+  color: #617391;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.query-result__summary strong {
+  display: block;
+  margin-top: 8px;
+  color: #152641;
+  font-size: 24px;
+}
+
+.query-result__download {
+  border: 0;
+  background: #136cfc;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.query-result__download:disabled { opacity: .65; cursor: wait; }
+
+.query-result__notice {
+  border-left: 4px solid #c3f84a;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #f5ffe3;
+  color: #385115;
+}
+
+.query-result__finding-group,
+.query-result__evidence { margin-top: 30px; }
+
+.query-result__section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.query-result__section-title h2 { margin: 0; color: #152641; font-size: 20px; }
+
+.query-result__findings { display: grid; gap: 10px; margin-top: 12px; }
+
+.query-result__finding {
+  border: 1px solid #d9e4f0;
+  border-left-width: 4px;
+  border-radius: 12px;
+  padding: 15px 18px;
+  background: #fff;
+}
+
+.query-result__finding--high { border-left-color: #ef4444; }
+.query-result__finding--medium { border-left-color: #f59e0b; }
+.query-result__finding--low { border-left-color: #10b981; }
+.query-result__finding--info { border-left-color: #136cfc; }
+.query-result__finding-source { margin: 0; color: #617391; font-size: 12px; font-weight: 800; }
+.query-result__finding h3 { margin: 6px 0; color: #152641; font-size: 15px; }
+.query-result__finding p:last-child { margin: 0; color: #536681; line-height: 1.5; }
+
+.query-result__evidence-list { display: grid; gap: 8px; }
+.query-result__evidence-item { overflow: hidden; border: 1px solid #d9e4f0; border-radius: 10px; background: #fff; }
+.query-result__evidence-item summary { padding: 13px 15px; color: #152641; font-weight: 800; cursor: pointer; }
+.query-result__evidence-item pre { max-height: 360px; overflow: auto; margin: 0; padding: 14px; border-top: 1px solid #e7edf5; background: #f8fbff; color: #30445f; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; }
+.query-result__message { padding: 40px 0; text-align: center; color: #617391; }
+.query-result__message--error { color: #b91c1c; }
+
+@media (max-width: 800px) {
+  .query-result { padding: 20px 16px 36px; }
+  .query-result__summary { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 520px) {
+  .query-result__hero { flex-direction: column; }
+  .query-result__summary { grid-template-columns: 1fr; }
+}
