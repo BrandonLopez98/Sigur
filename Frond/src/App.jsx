@@ -7,6 +7,7 @@ import AccountPage from './pages/Account/AccountPage'
 import PackagesPage from './pages/Packages/PackagesPage'
 import TransactionsPage from './pages/Transactions/TransactionsPage'
 import QueryResultPage from './pages/QueryResult/QueryResultPage'
+import CreditMovementsPage from './pages/Credits/CreditMovementsPage'
 import { getCurrentUser } from './services/profileApi'
 
 const SESSION_KEY = 'verifik_session'
@@ -81,6 +82,7 @@ function App() {
       'account',
       'packages',
       'transactions',
+      'credits',
     ]
 
     if (availablePages.includes(page)) {
@@ -122,6 +124,10 @@ function App() {
     currentPage = <PackagesPage token={session.token} />
   } else if (activePage === 'transactions') {
     currentPage = <TransactionsPage token={session.token} />
+  } else if (activePage === 'credits') {
+    currentPage = (
+      <CreditMovementsPage token={session.token} user={currentUser} />
+    )
   } else if (activePage === 'query-result' && selectedQueryId) {
     currentPage = (
       <QueryResultPage

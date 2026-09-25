@@ -1,4 +1,5 @@
-const { Query, User, CreditWallet, conn } = require('../../db')
+const { Query, User, conn } = require('../../db')
+const { applyCreditMovement } = require('../../services/creditMovements')
 const {
   launchTusdatosQuery,
   launchTusdatosVehicleQuery,
@@ -15,6 +16,7 @@ function createHttpError(message, status) {
 
 function formatTusdatosIssueDate(date) {
   if (!date) return undefined
+
   const [year, month, day] = String(date).split('-')
 
   if (!year || !month || !day) {
@@ -59,7 +61,10 @@ function validateInput({
       throw createHttpError('La placa debe contener seis caracteres.', 400)
     }
 
-    if (!VEHICLE_OWNER_TYPES.includes(ownerType) || !/^\d+$/.test(ownerNumber || '')) {
+    if (
+      !VEHICLE_OWNER_TYPES.includes(ownerType) ||
+      !/^\d+$/.test(ownerNumber || '')
+    ) {
       throw createHttpError(
         'Indica el tipo y número de documento numérico del propietario.',
         400
@@ -107,8 +112,8 @@ function validateInput({
 }
 
 /**
- * Reserva un crédito, lanza Tusdatos y guarda el jobid. Si el lanzamiento
- * falla, reintegra el crédito una sola vez dentro de una transacción.
+ * Descuenta un crédito, registra el movimiento y lanza la consulta.
+ * Si Tusdatos no acepta el lanzamiento, el crédito se reintegra.
  */
 module.exports = async (input) => {
   const { user_id } = input
@@ -124,25 +129,11 @@ module.exports = async (input) => {
       lock: transaction.LOCK.UPDATE,
     })
 
-    if (!user) throw createHttpError('El usuario no existe.', 404)
-
-    const wallet = await CreditWallet.findOne({
-      where: { user_id },
-      transaction,
-      lock: transaction.LOCK.UPDATE,
-    })
-
-    if (!wallet || wallet.balance < 1) {
-      throw createHttpError(
-        'No tienes créditos disponibles. Compra un paquete para continuar.',
-        402
-      )
+    if (!user) {
+      throw createHttpError('El usuario no existe.', 404)
     }
 
-    wallet.balance -= 1
-    await wallet.save({ transaction })
-
-    return Query.create(
+    const createdQuery = await Query.create(
       {
         user_id,
         document_type: data.type,
@@ -160,6 +151,23 @@ module.exports = async (input) => {
       },
       { transaction }
     )
+
+    await applyCreditMovement({
+      transaction,
+      userId: user_id,
+      type: 'query_charge',
+      amount: -1,
+      sourceType: 'query',
+      sourceId: createdQuery.id,
+      reference: createdQuery.id,
+      description: 'Crédito descontado por consulta de Verifik.',
+      metadata: {
+        document_type: data.type,
+        document_number: data.number,
+      },
+    })
+
+    return createdQuery
   })
 
   try {
@@ -197,14 +205,20 @@ module.exports = async (input) => {
         return
       }
 
-      const wallet = await CreditWallet.findOne({
-        where: { user_id },
+      await applyCreditMovement({
         transaction,
-        lock: transaction.LOCK.UPDATE,
+        userId: user_id,
+        type: 'query_refund',
+        amount: 1,
+        sourceType: 'query',
+        sourceId: queryToRefund.id,
+        reference: queryToRefund.id,
+        description:
+          'Crédito reintegrado porque no fue posible iniciar la consulta.',
+        metadata: {
+          provider_error: providerError.message,
+        },
       })
-
-      wallet.balance += 1
-      await wallet.save({ transaction })
 
       await queryToRefund.update(
         {

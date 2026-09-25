@@ -1,0 +1,57 @@
+.credits-page {
+  width: min(100% - 32px, 1120px);
+  margin: 0 auto;
+  padding: 32px 0 64px;
+}
+
+.credits-page__header { margin-bottom: 24px; }
+.credits-page__eyebrow { margin: 0 0 7px; color: #136cfc; font-size: .75rem; font-weight: 900; letter-spacing: .08em; }
+.credits-page__header h1 { margin: 0; color: #152641; font-size: clamp(2rem, 4vw, 2.5rem); line-height: 1.1; }
+.credits-page__header > p:last-child { margin: 9px 0 0; color: #64748b; }
+
+.credits-summary { display: grid; grid-template-columns: 1.3fr repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+.credits-summary article { padding: 20px; border: 1px solid #dbe7f3; border-radius: 16px; background: #fff; box-shadow: 0 6px 20px rgb(21 38 65 / 5%); }
+.credits-summary__balance { border-color: #b2dc52 !important; background: linear-gradient(135deg, #fff 0%, #f5ffe3 100%) !important; }
+.credits-summary span { display: block; color: #7890aa; font-size: .75rem; font-weight: 800; }
+.credits-summary strong { display: block; margin-top: 7px; color: #136cfc; font-size: 1.9rem; line-height: 1; }
+.credits-summary__balance strong { color: #3d6112; }
+.credits-summary p { margin: 6px 0 0; color: #62784a; font-size: .75rem; }
+
+.credits-list { display: grid; gap: 12px; }
+.credit-movement { display: grid; grid-template-columns: auto minmax(220px, 1fr) minmax(150px, .8fr) auto; align-items: center; gap: 18px; padding: 18px 20px; border: 1px solid #dbe7f3; border-radius: 16px; background: #fff; box-shadow: 0 6px 20px rgb(21 38 65 / 5%); }
+.credit-movement__icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 12px; font-size: 1.35rem; font-weight: 900; }
+.credit-movement__icon--positive { background: #d8f8e7; color: #13845b; }
+.credit-movement__icon--negative { background: #fee2e2; color: #c52b2b; }
+.credit-movement__icon--neutral { background: #e8f4fc; color: #136cfc; }
+.credit-movement__main h2 { margin: 0; color: #152641; font-size: 1rem; }
+.credit-movement__main p, .credit-movement__main small { display: block; margin: 4px 0 0; color: #64748b; font-size: .76rem; }
+.credit-movement__reference span, .credit-movement__amount span { display: block; color: #7890aa; font-size: .72rem; font-weight: 800; }
+.credit-movement__reference strong { display: block; max-width: 190px; margin-top: 5px; overflow: hidden; color: #425978; font-size: .75rem; text-overflow: ellipsis; white-space: nowrap; }
+.credit-movement__amount { text-align: right; }
+.credit-movement__amount strong { display: block; margin-bottom: 5px; font-size: .95rem; }
+.credit-movement__amount--positive { color: #13845b; }
+.credit-movement__amount--negative { color: #c52b2b; }
+.credit-movement__amount--neutral { color: #136cfc; }
+.credits-empty { padding: 64px 20px; border: 1px solid #dbe7f3; border-radius: 18px; background: #fff; color: #64748b; text-align: center; }
+.credits-empty > span { display: block; margin-bottom: 8px; color: #136cfc; font-size: 2rem; font-weight: 900; }
+.credits-empty h2 { margin: 0; color: #152641; font-size: 1.15rem; }
+.credits-empty p { margin: 8px 0 0; font-size: .88rem; }
+.credits-page__message { padding: 48px 20px; color: #64748b; text-align: center; }
+.credits-page__message--error { color: #c52b2b; }
+.credits-page__more { justify-self: center; margin-top: 8px; border: 1px solid #136cfc; border-radius: 10px; padding: 10px 16px; background: #fff; color: #136cfc; font-weight: 800; cursor: pointer; }
+.credits-page__more:disabled { opacity: .6; cursor: wait; }
+
+@media (max-width: 800px) {
+  .credits-summary { grid-template-columns: 1fr; }
+  .credits-summary article { display: flex; align-items: center; justify-content: space-between; }
+  .credits-summary strong, .credits-summary p { margin: 0; }
+  .credit-movement { grid-template-columns: auto 1fr auto; }
+  .credit-movement__reference { grid-column: 2 / -1; padding-top: 12px; border-top: 1px solid #e6eef6; }
+}
+
+@media (max-width: 520px) {
+  .credits-page { width: min(100% - 24px, 1120px); padding-top: 24px; }
+  .credit-movement { grid-template-columns: auto 1fr; gap: 12px; }
+  .credit-movement__amount { grid-column: 2; text-align: left; }
+  .credit-movement__reference { grid-column: 1 / -1; }
+}

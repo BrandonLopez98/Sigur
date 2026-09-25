@@ -2,8 +2,8 @@ const crypto = require('crypto')
 const {
   conn,
   PaymentTransaction,
-  CreditWallet,
 } = require('../../db')
+const { applyCreditMovement } = require('../../services/creditMovements')
 
 /**
  * Obtiene un valor anidado usando una ruta como "transaction.status".
@@ -126,32 +126,26 @@ async function postWompiWebhook(req, res, next) {
         wompiTransaction.payment_method_type || null
 
       if (
-        wompiTransaction.status === 'APPROVED' &&
-        !paymentTransaction.credited_at
-      ) {
-        const wallet = await CreditWallet.findOne({
-          where: {
-            user_id: paymentTransaction.user_id,
-          },
-          transaction: databaseTransaction,
-          lock: databaseTransaction.LOCK.UPDATE,
-        })
+          wompiTransaction.status === 'APPROVED' &&
+          !paymentTransaction.credited_at
+        ) {
+          await applyCreditMovement({
+            transaction: databaseTransaction,
+            userId: paymentTransaction.user_id,
+            type: 'purchase',
+            amount: paymentTransaction.credits_amount,
+            sourceType: 'payment',
+            sourceId: paymentTransaction.id,
+            reference: paymentTransaction.reference,
+            description: `Compra aprobada de ${paymentTransaction.credits_amount} créditos.`,
+            metadata: {
+              wompi_transaction_id: wompiTransaction.id,
+              payment_method: wompiTransaction.payment_method_type || null,
+            },
+          })
 
-        if (!wallet) {
-          const error = new Error('No se encontró la billetera del usuario.')
-          error.status = 500
-          throw error
+          paymentTransaction.credited_at = new Date()
         }
-
-        wallet.balance =
-          Number(wallet.balance) + paymentTransaction.credits_amount
-
-        paymentTransaction.credited_at = new Date()
-
-        await wallet.save({
-          transaction: databaseTransaction,
-        })
-      }
 
       await paymentTransaction.save({
         transaction: databaseTransaction,

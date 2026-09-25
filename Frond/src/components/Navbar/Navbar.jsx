@@ -67,7 +67,7 @@ function Navbar({ activePage, onNavigate, user }) {
         <button
           type="button"
           className="navbar__credits"
-          onClick={() => onNavigate('packages')}
+          onClick={() => onNavigate('credits')}
         >
           ◎ {credits} créditos
         </button>

@@ -47,6 +47,7 @@ const {
   CreditWallet,
   CreditPackage,
   PaymentTransaction,
+  CreditMovement,
 } = sequelize.models
 
 // Un usuario puede tener muchas consultas.
@@ -104,6 +105,18 @@ CreditPackage.hasMany(PaymentTransaction, {
 PaymentTransaction.belongsTo(CreditPackage, {
   foreignKey: 'package_id',
   as: 'package',
+})
+
+// Un usuario puede tener muchos movimientos de créditos.
+User.hasMany(CreditMovement, {
+  foreignKey: 'user_id',
+  as: 'credit_movements',
+  onDelete: 'RESTRICT',
+})
+
+CreditMovement.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user',
 })
 
 module.exports = {
