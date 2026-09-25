@@ -4,6 +4,7 @@ const {
   getTusdatosQueryResult,
   getTusdatosReportJson,
 } = require('../../services/tusdatosApi')
+const { refundQueryCredit } = require('../../services/refundQueryCredit')
 
 function getRiskLevel(result) {
   if (!result.hallazgo) return 'low'
@@ -82,7 +83,27 @@ module.exports = async (req, res, next) => {
     const result = await getTusdatosQueryResult(query.provider_request_id)
 
     if (result.estado !== 'finalizado') {
+      if (['fallido', 'failed', 'error'].includes(String(result.estado).toLowerCase())) {
+        const { refunded } = await refundQueryCredit({
+          queryId: query.id,
+          reason: result.estado,
+          providerResponse: result,
+        })
+
+        return res.status(200).json({ received: true, failed: true, refunded })
+      }
+
       return res.status(202).json({ received: true, status: result.estado })
+    }
+
+    if (result.error) {
+      const { refunded } = await refundQueryCredit({
+        queryId: query.id,
+        reason: result.errores?.join(' ') || 'Tusdatos no pudo completar la consulta.',
+        providerResponse: result,
+      })
+
+      return res.status(200).json({ received: true, failed: true, refunded })
     }
 
     // Tusdatos entrega el identificador estable del reporte tanto en el webhook

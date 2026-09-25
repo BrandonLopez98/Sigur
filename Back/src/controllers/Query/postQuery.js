@@ -1,5 +1,6 @@
 const { Query, User, conn } = require('../../db')
 const { applyCreditMovement } = require('../../services/creditMovements')
+const { refundQueryCredit } = require('../../services/refundQueryCredit')
 const {
   launchTusdatosQuery,
   launchTusdatosVehicleQuery,
@@ -195,39 +196,9 @@ module.exports = async (input) => {
 
     return query
   } catch (providerError) {
-    await conn.transaction(async (transaction) => {
-      const queryToRefund = await Query.findByPk(query.id, {
-        transaction,
-        lock: transaction.LOCK.UPDATE,
-      })
-
-      if (!queryToRefund?.credit_charged_at || queryToRefund.credit_refunded_at) {
-        return
-      }
-
-      await applyCreditMovement({
-        transaction,
-        userId: user_id,
-        type: 'query_refund',
-        amount: 1,
-        sourceType: 'query',
-        sourceId: queryToRefund.id,
-        reference: queryToRefund.id,
-        description:
-          'Crédito reintegrado porque no fue posible iniciar la consulta.',
-        metadata: {
-          provider_error: providerError.message,
-        },
-      })
-
-      await queryToRefund.update(
-        {
-          status: 'failed',
-          provider_error: providerError.message,
-          credit_refunded_at: new Date(),
-        },
-        { transaction }
-      )
+    await refundQueryCredit({
+      queryId: query.id,
+      reason: providerError.message,
     })
 
     throw createHttpError(

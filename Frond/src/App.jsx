@@ -8,6 +8,7 @@ import PackagesPage from './pages/Packages/PackagesPage'
 import TransactionsPage from './pages/Transactions/TransactionsPage'
 import QueryResultPage from './pages/QueryResult/QueryResultPage'
 import CreditMovementsPage from './pages/Credits/CreditMovementsPage'
+import DashboardPage from './pages/Dashboard/DashboardPage'
 import { getCurrentUser } from './services/profileApi'
 
 const SESSION_KEY = 'verifik_session'
@@ -26,7 +27,7 @@ function getSavedSession() {
  */
 function App() {
   const [session, setSession] = useState(getSavedSession)
-  const [activePage, setActivePage] = useState('history')
+  const [activePage, setActivePage] = useState('home')
   const [currentUser, setCurrentUser] = useState(null)
   const [selectedQueryId, setSelectedQueryId] = useState(null)
 
@@ -65,18 +66,19 @@ function App() {
   function handleLogin(newSession) {
     localStorage.setItem(SESSION_KEY, JSON.stringify(newSession))
     setSession(newSession)
-    setActivePage('history')
+    setActivePage('home')
   }
 
   function handleLogout() {
     localStorage.removeItem(SESSION_KEY)
     setSession(null)
     setCurrentUser(null)
-    setActivePage('history')
+    setActivePage('home')
   }
 
   function handleNavigation(page) {
     const availablePages = [
+      'home',
       'history',
       'new-query',
       'account',
@@ -105,7 +107,15 @@ function App() {
 
   let currentPage
 
-  if (activePage === 'new-query') {
+  if (activePage === 'home') {
+    currentPage = (
+      <DashboardPage
+        token={session.token}
+        user={currentUser}
+        onNavigate={handleNavigation}
+      />
+    )
+  } else if (activePage === 'new-query') {
     currentPage = (
       <NewQueryPage
         token={session.token}

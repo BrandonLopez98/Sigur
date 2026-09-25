@@ -37,7 +37,7 @@ function Navbar({ activePage, onNavigate, user }) {
       <button
         type="button"
         className="navbar__brand"
-        onClick={() => onNavigate('history')}
+        onClick={() => onNavigate('home')}
       >
         <span className="navbar__logo">V</span>
 

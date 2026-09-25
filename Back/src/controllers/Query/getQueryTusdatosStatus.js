@@ -3,6 +3,7 @@ const {
   getTusdatosQueryResult,
   getTusdatosReportJson,
 } = require('../../services/tusdatosApi')
+const { refundQueryCredit } = require('../../services/refundQueryCredit')
 
 function getRiskLevel(result) {
   if (!result.hallazgo) return 'low'
@@ -69,6 +70,20 @@ module.exports = async (req, res, next) => {
     }
 
     if (result.estado === 'finalizado') {
+      if (result.error) {
+        const { query: failedQuery, refunded } = await refundQueryCredit({
+          queryId: query.id,
+          reason: result.errores?.join(' ') || 'Tusdatos no pudo completar la consulta.',
+          providerResponse: result,
+        })
+
+        return res.status(502).json({
+          error: 'Tusdatos no pudo completar la consulta. Tu crédito fue reintegrado.',
+          refunded,
+          query: failedQuery,
+        })
+      }
+
       const reportId = result.id || query.provider_report_id
       let reportJson = null
       try {
@@ -94,15 +109,16 @@ module.exports = async (req, res, next) => {
       })
     }
 
-    await query.update({
-      status: 'failed',
-      provider_response: result,
-      provider_error: result.estado || 'Tusdatos devolvió un estado no reconocido.',
+    const { query: failedQuery, refunded } = await refundQueryCredit({
+      queryId: query.id,
+      reason: result.estado || 'Tusdatos devolvió un estado no reconocido.',
+      providerResponse: result,
     })
 
     return res.status(502).json({
-      error: 'Tusdatos no pudo finalizar la consulta.',
-      query,
+      error: 'Tusdatos no pudo finalizar la consulta. Tu crédito fue reintegrado.',
+      refunded,
+      query: failedQuery,
     })
   } catch (error) {
     return next(error)

@@ -1,4 +1,4 @@
-const { CreditMovement } = require('../../db')
+const { CreditMovement, Query } = require('../../db')
 
 function parsePositiveInteger(value, fallback, max) {
   const parsed = Number.parseInt(value, 10)
@@ -36,12 +36,38 @@ module.exports = async (req, res, next) => {
       offset,
     })
 
+    const queryIds = rows
+      .filter((movement) => movement.source_type === 'query' && movement.source_id)
+      .map((movement) => movement.source_id)
+
+    const queries = queryIds.length
+      ? await Query.findAll({
+          where: {
+            id: queryIds,
+            user_id: req.user.userId,
+          },
+          attributes: ['id', 'status'],
+        })
+      : []
+
+    const queryStatusById = new Map(
+      queries.map((query) => [query.id, query.status])
+    )
+
+    const movements = rows.map((movement) => ({
+      ...movement.get({ plain: true }),
+      query_status:
+        movement.source_type === 'query'
+          ? queryStatusById.get(movement.source_id) || null
+          : null,
+    }))
+
     return res.status(200).json({
       total: count,
       page,
       limit,
       total_pages: Math.ceil(count / limit),
-      movements: rows,
+      movements,
     })
   } catch (error) {
     return next(error)
