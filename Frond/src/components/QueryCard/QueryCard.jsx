@@ -19,7 +19,7 @@ function formatDate(date) {
  * @param {Object} props
  * @param {Object} props.query - Datos de la consulta obtenidos desde el backend.
  */
-function QueryCard({ query, onOpenResult }) {
+function QueryCard({ query, onOpenResult, onRefreshStatus, refreshing = false }) {
   // Etiquetas legibles para valores que devuelve el backend.
   const statusLabels = {
     completed: 'Completada',
@@ -100,6 +100,17 @@ function QueryCard({ query, onOpenResult }) {
             onClick={() => onOpenResult(query.id)}
           >
             Ver resultado
+          </button>
+        )}
+
+        {isInProgress && query.can_refresh_status && onRefreshStatus && (
+          <button
+            type="button"
+            className="query-card__refresh"
+            onClick={() => onRefreshStatus(query.id)}
+            disabled={refreshing}
+          >
+            {refreshing ? 'Actualizando…' : '↻ Actualizar estado'}
           </button>
         )}
       </div>

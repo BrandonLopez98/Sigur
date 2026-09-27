@@ -63,7 +63,9 @@ function NewQueryPage({ token, onQueryCreated }) {
         consent_given: true,
       })
 
-      setSuccess('Consulta enviada. Actualizando tu saldo e historial...')
+      setSuccess(query.idempotent_replay
+        ? 'Esta consulta ya estaba en curso. No se descontó otro crédito.'
+        : 'Consulta enviada. Actualizando tu saldo e historial...')
       if (onQueryCreated) await onQueryCreated(query)
     } catch (requestError) {
       setError(requestError.message)

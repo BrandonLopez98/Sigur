@@ -1,5 +1,6 @@
 const { Query } = require('../../db')
 const { synchronizeTusdatosQuery } = require('../../services/tusdatosQueryLifecycle')
+const { serializeQueryProgress } = require('./serializers/queryProgress')
 
 /**
  * Actualiza inmediatamente el estado de una consulta propia. El monitor ya
@@ -23,7 +24,7 @@ module.exports = async (req, res, next) => {
     }
 
     return res.status(outcome.state === 'completed' || outcome.state === 'failed' ? 200 : 202).json({
-      query: currentQuery,
+      query: serializeQueryProgress(currentQuery),
       provider_status: outcome.state,
       refunded: Boolean(outcome.refunded),
     })

@@ -5,6 +5,7 @@ const authRoutes = require('./AuthRoutes');
 const packageRoutes = require('./PackageRoutes')
 const paymentRoutes = require('./PaymentRoutes')
 const creditRoutes = require('./CreditRoutes')
+const healthRoutes = require('./HealthRoutes')
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.use('/Query', queryRoutes);
 router.use('/Packages', packageRoutes)
 router.use('/Payments', paymentRoutes)
 router.use('/Credits', creditRoutes)
+router.use('/Health', healthRoutes)
 
 module.exports = router;

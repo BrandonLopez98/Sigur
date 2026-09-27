@@ -5,8 +5,14 @@ const {
   launchTusdatosQuery,
   launchTusdatosVehicleQuery,
 } = require('../../services/tusdatosApi')
-
-const INITIAL_POLL_DELAY_MS = Number(process.env.TUSDATOS_POLL_INITIAL_DELAY_MS || 60000)
+const {
+  registerTusdatosLaunchResponse,
+} = require('../../services/tusdatosQueryLifecycle')
+const {
+  findRecentDuplicateQuery,
+  markAsIdempotentReplay,
+} = require('../../services/queryIdempotency')
+const { incrementMetric, logEvent } = require('../../services/observability')
 
 const DOCUMENT_TYPES = ['CC', 'CE', 'NIT', 'PP', 'PPT', 'INT']
 const VEHICLE_OWNER_TYPES = ['CC', 'CE', 'NIT', 'TI']
@@ -119,14 +125,14 @@ function validateInput({
  * Si Tusdatos no acepta el lanzamiento, el crédito se reintegra.
  */
 module.exports = async (input) => {
-  const { user_id } = input
+  const { user_id, request_id } = input
   const data = validateInput(input)
 
   if (!user_id) {
     throw createHttpError('El usuario autenticado es obligatorio.', 401)
   }
 
-  const query = await conn.transaction(async (transaction) => {
+  const creation = await conn.transaction(async (transaction) => {
     const user = await User.findByPk(user_id, {
       transaction,
       lock: transaction.LOCK.UPDATE,
@@ -134,6 +140,17 @@ module.exports = async (input) => {
 
     if (!user) {
       throw createHttpError('El usuario no existe.', 404)
+    }
+
+    const duplicateQuery = await findRecentDuplicateQuery({
+      Query,
+      userId: user_id,
+      data,
+      transaction,
+    })
+
+    if (duplicateQuery) {
+      return { query: markAsIdempotentReplay(duplicateQuery), replayed: true }
     }
 
     const createdQuery = await Query.create(
@@ -170,8 +187,21 @@ module.exports = async (input) => {
       },
     })
 
-    return createdQuery
+    return { query: createdQuery, replayed: false }
   })
+
+  const { query, replayed } = creation
+
+  if (replayed) {
+    incrementMetric('query_idempotent_replays')
+    logEvent('info', 'query.idempotent_replay', {
+      query_id: query.id,
+      user_id: user_id,
+      request_id,
+      status: query.status,
+    })
+    return query
+  }
 
   try {
     const providerResponse =
@@ -189,22 +219,31 @@ module.exports = async (input) => {
             webhookReference: `verifik-query:${query.id}`,
           })
 
-    await query.update({
-      status: 'processing',
-      provider_request_id: providerResponse.jobid,
-      provider_response: providerResponse,
-      search_name: providerResponse.nombre || data.fullName || query.search_name,
-      provider_poll_attempts: 0,
-      provider_last_polled_at: null,
-      provider_next_poll_at: new Date(Date.now() + INITIAL_POLL_DELAY_MS),
-      provider_started_at: new Date(),
+    const outcome = await registerTusdatosLaunchResponse(query, providerResponse)
+    incrementMetric('query_launch_success')
+    logEvent('info', 'query.launch_registered', {
+      query_id: query.id,
+      user_id,
+      request_id,
+      state: outcome.state,
+      has_job_id: Boolean(outcome.query.provider_request_id),
+      has_report_id: Boolean(outcome.query.provider_report_id),
     })
-
-    return query
+    return outcome.query
   } catch (providerError) {
     await refundQueryCredit({
       queryId: query.id,
       reason: providerError.message,
+      providerResponse: providerError.providerResponse || null,
+    })
+
+    incrementMetric('query_launch_failure')
+    logEvent('error', 'query.launch_failed', {
+      query_id: query.id,
+      user_id,
+      request_id,
+      status_code: providerError.status || 502,
+      error: providerError,
     })
 
     throw createHttpError(

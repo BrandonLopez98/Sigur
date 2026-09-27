@@ -6,6 +6,7 @@ const TUSDATOS_USERNAME = process.env.TUSDATOS_USERNAME
 const TUSDATOS_PASSWORD = process.env.TUSDATOS_PASSWORD
 const REQUEST_TIMEOUT_MS = Number(process.env.TUSDATOS_REQUEST_TIMEOUT_MS || 15000)
 const MIN_LAUNCH_INTERVAL_MS = Number(process.env.TUSDATOS_MIN_LAUNCH_INTERVAL_MS || 5000)
+const { incrementMetric, logEvent, observeDuration } = require('./observability')
 
 // Tusdatos exige cinco segundos entre lanzamientos. Esta cola protege cada
 // instancia de Node; en una implementación multi-servidor deberá reemplazarse
@@ -107,6 +108,12 @@ async function requestTusdatos(path, options, fallbackMessage) {
   const { baseUrl, authorization } = getTusdatosConfig()
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  const startedAt = Date.now()
+  const endpoint = path.split('?')[0]
+    .replace(/\/api\/results\/[^/]+$/, '/api/results/:id')
+    .replace(/\/api\/report_json\/[^/]+$/, '/api/report_json/:id')
+    .replace(/\/api\/v2\/report\/[^/]+$/, '/api/v2/report/:id')
+    .replace(/\/api\/retry(?:_nit)?\/[^/]+$/, '/api/retry/:id')
 
   try {
     const response = await fetch(`${baseUrl}${path}`, {
@@ -119,8 +126,28 @@ async function requestTusdatos(path, options, fallbackMessage) {
       signal: controller.signal,
     })
 
-    return await readTusdatosResponse(response, fallbackMessage)
+    const data = await readTusdatosResponse(response, fallbackMessage)
+    const durationMs = Date.now() - startedAt
+    observeDuration('provider_request', durationMs)
+    incrementMetric(`provider_status_${response.status}`)
+    logEvent('info', 'provider.request_completed', {
+      endpoint,
+      method: options.method,
+      status_code: response.status,
+      duration_ms: durationMs,
+    })
+    return data
   } catch (error) {
+    const durationMs = Date.now() - startedAt
+    observeDuration('provider_request_error', durationMs)
+    incrementMetric('provider_request_failure')
+    logEvent(error.name === 'AbortError' ? 'warn' : 'error', 'provider.request_failed', {
+      endpoint,
+      method: options.method,
+      status_code: error.status || null,
+      duration_ms: durationMs,
+      error,
+    })
     if (error.name === 'AbortError') {
       throw createProviderError('Tusdatos tardó demasiado en responder.', 504)
     }

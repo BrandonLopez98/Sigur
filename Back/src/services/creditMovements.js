@@ -1,4 +1,5 @@
 const { CreditWallet, CreditMovement } = require('../db')
+const { incrementMetric, logEvent } = require('./observability')
 
 function createHttpError(message, status) {
   const error = new Error(message)
@@ -87,6 +88,16 @@ async function applyCreditMovement({
     },
     { transaction }
   )
+
+  incrementMetric(`credit_movement_${type}`)
+  logEvent('info', 'credit.movement_applied', {
+    user_id: userId,
+    movement_type: type,
+    amount,
+    balance_after: newBalance,
+    source_type: sourceType,
+    source_id: sourceId,
+  })
 
   return {
     wallet,

@@ -8,6 +8,7 @@ const GROUPS = [
   { key: 'bajos', label: 'Información de bajo impacto', tone: 'low' },
   { key: 'infos', label: 'Información adicional', tone: 'info' },
 ]
+const MAX_AUTOMATIC_REPORT_REFRESHES = 12
 
 function formatDateTime(date) {
   if (!date) return 'Sin fecha'
@@ -95,16 +96,28 @@ function QueryResultPage({ token, queryId, onBack }) {
   const [error, setError] = useState('')
   const [retrying, setRetrying] = useState(false)
   const [retryStarted, setRetryStarted] = useState(false)
+  const [refreshTick, setRefreshTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
+    let refreshTimeoutId
 
     async function loadResult() {
-      setLoading(true)
+      if (refreshTick === 0) setLoading(true)
       setError('')
       try {
         const data = await getQueryResult(token, queryId)
-        if (!cancelled) setResult(data)
+        if (!cancelled) {
+          setResult(data)
+
+          // Tusdatos puede publicar el JSON después del estado final. El
+          // backend lo recupera en cada intento y la vista se actualiza sola.
+          if (!data.report && refreshTick < MAX_AUTOMATIC_REPORT_REFRESHES) {
+            refreshTimeoutId = window.setTimeout(() => {
+              setRefreshTick((currentTick) => currentTick + 1)
+            }, 5000)
+          }
+        }
       } catch (requestError) {
         if (!cancelled) setError(requestError.message)
       } finally {
@@ -113,8 +126,11 @@ function QueryResultPage({ token, queryId, onBack }) {
     }
 
     loadResult()
-    return () => { cancelled = true }
-  }, [token, queryId])
+    return () => {
+      cancelled = true
+      window.clearTimeout(refreshTimeoutId)
+    }
+  }, [token, queryId, refreshTick])
 
   const groups = useMemo(() => {
     const findings = result?.report?.dict_hallazgos || {}
@@ -122,6 +138,9 @@ function QueryResultPage({ token, queryId, onBack }) {
   }, [result])
 
   const failedSources = result?.failed_sources || []
+  const reportIsDelayed = Boolean(
+    result && !result.report && refreshTick >= MAX_AUTOMATIC_REPORT_REFRESHES
+  )
 
   async function handleRetry() {
     setRetrying(true)
@@ -184,6 +203,24 @@ function QueryResultPage({ token, queryId, onBack }) {
           <section className="query-result__notice">
             <strong>Cómo leer este resultado:</strong> revisa primero los hallazgos de alto riesgo. La información de bajo impacto es contextual y no representa por sí sola una alerta.
           </section>
+
+          {!result.report && !reportIsDelayed && (
+            <section className="query-result__notice" role="status">
+              <strong>Preparando el detalle del reporte.</strong> Tusdatos ya terminó la consulta; estamos recuperando la información completa. Esta página se actualizará automáticamente.
+            </section>
+          )}
+
+          {reportIsDelayed && (
+            <section className="query-result__notice query-result__notice--delayed" role="status">
+              <div>
+                <strong>El detalle está tardando más de lo habitual.</strong>
+                <p>La consulta está finalizada y puedes volver al historial. Reintentarlo no genera otra consulta ni descuenta créditos.</p>
+              </div>
+              <button type="button" onClick={() => setRefreshTick(0)}>
+                ↻ Intentar recuperar el reporte
+              </button>
+            </section>
+          )}
 
           <ResultImages images={result.images || []} />
 

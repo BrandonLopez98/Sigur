@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-09-27T22:31:50.381111+00:00",
+  "nodes": {
+    "back_src_routes_queryroutes_postquery": {
+      "code_fingerprint": "e864898f2faba95ca89884e5b78a991f4098763f18f51df7f69010b944a3cd12",
+      "label": "postQuery",
+      "last": "2026-09-27T22:26:05.144698+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-27T22:26:05.144698+00:00",
+          "outcome": "useful",
+          "q": "ok realiza todos los cambios de prioridad inmediata optimiza todo lo que puedas optimizar y mejora todo los que puedas mejorar"
+        },
+        {
+          "date": "2026-09-27T22:12:20.793772+00:00",
+          "outcome": "useful",
+          "q": "perfecto que otros cambios recomiendas realizar?"
+        },
+        {
+          "date": "2026-09-27T22:09:07.215606+00:00",
+          "outcome": "useful",
+          "q": "Por qué las consultas recientes de Tusdatos no muestran respuesta ni aparentan descontar créditos del proveedor"
+        }
+      ],
+      "score": 2.999230494,
+      "source_file": "Back/src/routes/QueryRoutes.js",
+      "status": "preferred",
+      "uses": 3
+    },
+    "back_src_routes_queryroutes_posttusdatoswebhook": {
+      "code_fingerprint": "e864898f2faba95ca89884e5b78a991f4098763f18f51df7f69010b944a3cd12",
+      "label": "postTusdatosWebhook",
+      "last": "2026-09-27T22:26:05.144698+00:00",
+      "provenance": [
+        {
+          "date": "2026-09-27T22:26:05.144698+00:00",
+          "outcome": "useful",
+          "q": "ok realiza todos los cambios de prioridad inmediata optimiza todo lo que puedas optimizar y mejora todo los que puedas mejorar"
+        },
+        {
+          "date": "2026-09-27T22:12:20.793772+00:00",
+          "outcome": "useful",
+          "q": "perfecto que otros cambios recomiendas realizar?"
+        }
+      ],
+      "score": 1.999594962,
+      "source_file": "Back/src/routes/QueryRoutes.js",
+      "status": "preferred",
+      "uses": 2
+    }
+  },
+  "version": 1
+}

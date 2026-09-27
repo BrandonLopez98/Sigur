@@ -31,6 +31,7 @@ function App() {
   const [activePage, setActivePage] = useState('home')
   const [currentUser, setCurrentUser] = useState(null)
   const [selectedQueryId, setSelectedQueryId] = useState(null)
+  const [historyNotice, setHistoryNotice] = useState('')
 
   /**
    * Carga el usuario una sola vez al iniciar o restaurar la sesión.
@@ -74,6 +75,7 @@ function App() {
     localStorage.removeItem(SESSION_KEY)
     setSession(null)
     setCurrentUser(null)
+    setHistoryNotice('')
     setActivePage('home')
   }
 
@@ -94,7 +96,7 @@ function App() {
     }
   }
 
-  async function handleQueryCreated() {
+  async function handleQueryCreated(query) {
     // El crédito se descuenta en el backend al aceptar la consulta. Volvemos a
     // leer la billetera para que la barra superior no muestre un saldo viejo.
     try {
@@ -104,6 +106,9 @@ function App() {
       console.error('No fue posible actualizar el saldo:', error)
     }
 
+    setHistoryNotice(query?.idempotent_replay
+      ? 'La consulta ya estaba registrada y se reutilizó sin descontar otro crédito.'
+      : 'Consulta registrada correctamente. El progreso se actualizará automáticamente.')
     setActivePage('history')
   }
 
@@ -161,7 +166,11 @@ function App() {
     )
   } else {
     currentPage = (
-      <HistoryPage token={session.token} onOpenResult={handleOpenResult} />
+      <HistoryPage
+        token={session.token}
+        onOpenResult={handleOpenResult}
+        notice={historyNotice}
+      />
     )
   }
 

@@ -25,18 +25,6 @@
   },
   {
     "user_email": "esteban@exale.com",
-    "document_type": "CE",
-    "document_number": "312456",
-    "search_name": "María Fernanda Lagos",
-    "expedition_date": "2008-04-18",
-    "status": "pending",
-    "risk_level": "medium",
-    "pdf_url": null,
-    "created_at": "2026-08-05T09:10:00.000Z",
-    "completed_at": null
-  },
-  {
-    "user_email": "esteban@exale.com",
     "document_type": "NIT",
     "document_number": "900987654-3",
     "search_name": "Inmobiliaria del Norte S.A.S.",
@@ -73,18 +61,6 @@
   },
   {
     "user_email": "esteban@exale.com",
-    "document_type": "NIT",
-    "document_number": "800123456-9",
-    "search_name": "Constructora Andina Ltda.",
-    "expedition_date": null,
-    "status": "pending",
-    "risk_level": "low",
-    "pdf_url": null,
-    "created_at": "2026-08-15T13:30:00.000Z",
-    "completed_at": null
-  },
-  {
-    "user_email": "esteban@exale.com",
     "document_type": "CE",
     "document_number": "654321",
     "search_name": "Carlos Eduardo Pérez",
@@ -118,18 +94,6 @@
     "pdf_url": "https://storage.googleapis.com/reportes/us99887766.pdf",
     "created_at": "2026-08-22T12:25:00.000Z",
     "completed_at": "2026-08-22T12:26:00.000Z"
-  },
-  {
-    "user_email": "esteban@exale.com",
-    "document_type": "CC",
-    "document_number": "1032456789",
-    "search_name": "Ana Sofía Martínez",
-    "expedition_date": "2021-09-30",
-    "status": "pending",
-    "risk_level": "low",
-    "pdf_url": null,
-    "created_at": "2026-08-25T09:40:00.000Z",
-    "completed_at": null
   },
   {
     "user_email": "esteban@exale.com",
@@ -181,18 +145,6 @@
   },
   {
     "user_email": "esteban@exale.com",
-    "document_type": "NIT",
-    "document_number": "830456789-1",
-    "search_name": "Transportes del Centro S.A.S.",
-    "expedition_date": null,
-    "status": "pending",
-    "risk_level": "high",
-    "pdf_url": null,
-    "created_at": "2026-09-08T16:30:00.000Z",
-    "completed_at": null
-  },
-  {
-    "user_email": "esteban@exale.com",
     "document_type": "CC",
     "document_number": "1145678901",
     "search_name": "Santiago Morales",
@@ -226,18 +178,6 @@
     "pdf_url": "https://storage.googleapis.com/reportes/31245678.pdf",
     "created_at": "2026-09-02T09:00:00.000Z",
     "completed_at": "2026-09-02T09:01:00.000Z"
-  },
-  {
-    "user_email": "estean@example.m",
-    "document_type": "NIT",
-    "document_number": "901555777-2",
-    "search_name": "Comercializadora del Caribe S.A.S.",
-    "expedition_date": null,
-    "status": "pending",
-    "risk_level": "medium",
-    "pdf_url": null,
-    "created_at": "2026-09-06T11:20:00.000Z",
-    "completed_at": null
   },
   {
     "user_email": "estan@exple.com",
@@ -276,18 +216,6 @@
     "completed_at": "2026-09-01T10:01:00.000Z"
   },
   {
-    "user_email": "maria@example.com",
-    "document_type": "NIT",
-    "document_number": "860123456-7",
-    "search_name": "Inversiones Bogotá S.A.S.",
-    "expedition_date": null,
-    "status": "pending",
-    "risk_level": "high",
-    "pdf_url": null,
-    "created_at": "2026-09-11T16:40:00.000Z",
-    "completed_at": null
-  },
-  {
     "user_email": "admin@verifik.com",
     "document_type": "CE",
     "document_number": "789123",
@@ -310,18 +238,6 @@
     "pdf_url": null,
     "created_at": "2026-09-07T14:00:00.000Z",
     "completed_at": "2026-09-07T14:01:00.000Z"
-  },
-  {
-    "user_email": "andres@example.com",
-    "document_type": "CC",
-    "document_number": "1109876543",
-    "search_name": "Paola Jiménez",
-    "expedition_date": "2019-01-27",
-    "status": "pending",
-    "risk_level": "low",
-    "pdf_url": null,
-    "created_at": "2026-09-05T12:45:00.000Z",
-    "completed_at": null
   },
   {
     "user_email": "andres@example.com",

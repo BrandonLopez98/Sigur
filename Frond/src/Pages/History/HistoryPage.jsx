@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import FilterPanel from '../../components/FilterPanel/FilterPanel'
 import QueryCard from '../../components/QueryCard/QueryCard'
-import { getQueries } from '../../services/queriesApi'
+import { getQueries, refreshQueryStatus } from '../../services/queriesApi'
 import './HistoryPage.css'
 
 // Estado inicial para todos los filtros.
@@ -17,12 +17,13 @@ const INITIAL_FILTERS = {
 /**
  * Página que obtiene y presenta el historial de consultas del usuario.
  */
-function HistoryPage({ token, onOpenResult }) {
+function HistoryPage({ token, onOpenResult, notice = '' }) {
   const [queries, setQueries] = useState([])
   const [filters, setFilters] = useState(INITIAL_FILTERS)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [refreshTick, setRefreshTick] = useState(0)
+  const [refreshingQueryId, setRefreshingQueryId] = useState(null)
 
   // Solo estos filtros deben solicitar información nueva al backend.
   // La búsqueda por texto se realiza en el navegador para responder al instante.
@@ -92,6 +93,20 @@ function HistoryPage({ token, onOpenResult }) {
     }
   }, [token, apiFilters, refreshTick])
 
+  async function handleRefreshStatus(queryId) {
+    setRefreshingQueryId(queryId)
+    setError('')
+
+    try {
+      await refreshQueryStatus(token, queryId)
+      setRefreshTick((currentTick) => currentTick + 1)
+    } catch (requestError) {
+      setError(requestError.message)
+    } finally {
+      setRefreshingQueryId(null)
+    }
+  }
+
   /**
    * Busca por nombre o documento entre las consultas ya obtenidas.
    */
@@ -116,6 +131,10 @@ function HistoryPage({ token, onOpenResult }) {
           <p>{visibleQueries.length} resultados encontrados</p>
         </div>
       </header>
+
+      {notice && (
+        <p className="history-page__notice" role="status">{notice}</p>
+      )}
 
       <FilterPanel
         filters={filters}
@@ -145,6 +164,8 @@ function HistoryPage({ token, onOpenResult }) {
                 key={query.id}
                 query={query}
                 onOpenResult={onOpenResult}
+                onRefreshStatus={handleRefreshStatus}
+                refreshing={refreshingQueryId === query.id}
               />
             ))
           )}

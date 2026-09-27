@@ -66,9 +66,11 @@ router.post('/', authenticateToken, async (req, res) => {
     const queryCreated = await postQuery({
       ...req.body,
       user_id: req.user.userId,
+      request_id: req.requestId,
     })
 
-    return res.status(202).json(queryCreated)
+    const replayed = Boolean(queryCreated.getDataValue?.('idempotent_replay'))
+    return res.status(replayed || queryCreated.status === 'completed' ? 200 : 202).json(queryCreated)
   } catch (error) {
     return res.status(error.status || 400).json({ error: error.message })
   }

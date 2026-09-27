@@ -1,5 +1,10 @@
 const API_URL = import.meta.env.VITE_API_URL
 
+function createRequestId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID()
+  return `web-${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
 /**
  * Obtiene las consultas del usuario autenticado.
  *
@@ -39,6 +44,7 @@ export async function createQuery(token, queryData) {
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
+      'X-Request-Id': createRequestId(),
     },
     body: JSON.stringify(queryData),
   })
@@ -62,6 +68,21 @@ export async function getQueryResult(token, queryId) {
 
   if (!response.ok) {
     throw new Error(data.error || 'No fue posible cargar el resultado.')
+  }
+
+  return data
+}
+
+/** Fuerza una sincronización de estado sin crear ni cobrar otra consulta. */
+export async function refreshQueryStatus(token, queryId) {
+  const response = await fetch(`${API_URL}/Query/${queryId}/status`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  const data = await response.json()
+
+  if (!response.ok && response.status !== 202) {
+    throw new Error(data.error || 'No fue posible actualizar el estado.')
   }
 
   return data

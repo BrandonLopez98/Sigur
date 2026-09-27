@@ -20,6 +20,12 @@ async function migrate() {
           ON public."Queries" (status, provider_next_poll_at)
           WHERE status IN ('pending', 'processing');
       `, { transaction })
+
+      await conn.query(`
+        CREATE INDEX IF NOT EXISTS "Queries_user_document_recent_idx"
+          ON public."Queries" (user_id, document_type, document_number, created_at DESC)
+          WHERE status <> 'failed';
+      `, { transaction })
     })
 
     console.log('Migración de seguimiento de Tusdatos completada.')

@@ -1,5 +1,8 @@
 const { Query } = require('../../db')
-const { getTusdatosReportHtml } = require('../../services/tusdatosApi')
+const {
+  getTusdatosReportHtml,
+  getTusdatosReportJson,
+} = require('../../services/tusdatosApi')
 
 const IMAGE_URL_PATTERN = /\.(?:png|jpe?g|webp|gif|avif)(?:[?#].*)?$/i
 const IMAGE_KEY_PATTERN = /(?:foto|fotografia|imagen|image|photo|selfie|rostro|firma|avatar)/i
@@ -124,7 +127,27 @@ module.exports = async (req, res, next) => {
       || query.provider_response?.result?.errores
       || []
 
-    let images = getReportImages(query.provider_response?.report)
+    // Tusdatos puede finalizar el trabajo unos segundos antes de que publique
+    // el JSON detallado. Recuperamos y persistimos ese reporte al abrirlo.
+    let report = query.provider_response?.report || null
+
+    if (!report && query.provider_report_id) {
+      try {
+        report = await getTusdatosReportJson(query.provider_report_id)
+        await query.update({
+          provider_response: {
+            ...(query.provider_response || {}),
+            report,
+          },
+        })
+      } catch (reportError) {
+        // Conservamos el resumen y dejamos que el cliente reintente sin marcar
+        // una consulta terminada como fallida.
+        console.warn('El reporte JSON de Tusdatos aún no está disponible:', reportError.message)
+      }
+    }
+
+    let images = getReportImages(report)
 
     // El JSON contiene los datos, pero las capturas de fuentes se incluyen en
     // el HTML del reporte. Solo se consultan al abrir un resultado terminado.
@@ -146,7 +169,7 @@ module.exports = async (req, res, next) => {
       risk_level: query.risk_level,
       completed_at: query.completed_at,
       summary: query.result_summary,
-      report: query.provider_response?.report || null,
+      report,
       images,
       failed_sources: Array.isArray(failedSources) ? failedSources : [],
       retry_available: query.document_type !== 'PLACA' && Array.isArray(failedSources) && failedSources.length > 0,
