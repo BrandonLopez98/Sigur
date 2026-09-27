@@ -34,6 +34,13 @@ function QueryCard({ query, onOpenResult }) {
     high: 'Alto riesgo',
   }
 
+  const isInProgress = ['pending', 'processing'].includes(query.status)
+  const progress = query.progress || {
+    percentage: query.status === 'processing' ? 15 : 5,
+    estimated: true,
+    label: 'Actualización automática en curso',
+  }
+
   return (
     <article className="query-card">
       <div className="query-card__document-type">
@@ -50,6 +57,29 @@ function QueryCard({ query, onOpenResult }) {
             <> · Expedición: {formatDate(query.expedition_date)}</>
           )}
         </p>
+
+        {isInProgress && (
+          <div className="query-card__progress" aria-live="polite">
+            <div className="query-card__progress-copy">
+              <small>{progress.label}</small>
+              {!progress.estimated && <strong>{progress.percentage}%</strong>}
+            </div>
+            <div
+              className="query-card__progress-track"
+              role="progressbar"
+              aria-label="Progreso de la verificación"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow={progress.percentage}
+              aria-valuetext={progress.label}
+            >
+              <span
+                className={progress.estimated ? 'query-card__progress-bar query-card__progress-bar--estimated' : 'query-card__progress-bar'}
+                style={{ width: `${progress.percentage}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="query-card__tags">

@@ -89,6 +89,38 @@ module.exports = (sequelize) => {
         allowNull: true,
       },
 
+      // Seguimiento persistente del trabajo asíncrono en Tusdatos. Permite
+      // retomar el monitoreo si el proceso de Node se reinicia.
+      provider_poll_attempts: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+
+      provider_last_polled_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
+      provider_next_poll_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
+      // Inicio del trabajo activo en el proveedor. Se reinicia al solicitar
+      // una recarga de fuentes para que el timeout no use la fecha original.
+      provider_started_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+
+      // Auditoría mínima de recargas; no representa compras ni cobros.
+      provider_retry_count: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+
       // Aquí guardaremos el JSON completo devuelto por Tusdatos.
       provider_response: {
         type: DataTypes.JSON,

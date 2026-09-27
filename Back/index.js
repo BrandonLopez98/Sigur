@@ -27,17 +27,18 @@
 
 const server = require('./src/app.js');
 const { conn, User, CreditPackage } = require('./src/db.js')
+const { getTusdatosConfig } = require('./src/services/tusdatosApi')
+const { startTusdatosQueryMonitor } = require('./src/services/tusdatosQueryLifecycle')
 const PORT = process.env.PORT || 3001;
 
-const postUsers = require('./src/controllers/User/PostUsers.js');
-const UsersData = require('./json/Users.json');
-
-const postQueriesArray = require('./src/controllers/Query/postQuerys.js');
-const QueriesData = require('./json/Queries.json');
-const CreditPackagesData = require('./json/CreditPackages.json')
-
 async function loadData() {
+  if (process.env.SEED_DEMO_DATA !== 'true') return
+
   try {
+    const postUsers = require('./src/controllers/User/PostUsers.js')
+    const postQueriesArray = require('./src/controllers/Query/postQuerys.js')
+    const UsersData = require('./json/Users.json')
+    const QueriesData = require('./json/Queries.json')
     // Los datos JSON solo se usan para preparar una base vacía.
     // Así no se duplican consultas ni se reemplazan usuarios reales al reiniciar.
     const usersCount = await User.count();
@@ -60,7 +61,10 @@ async function loadData() {
  * Si ya existe un paquete con ese nombre, no lo duplica.
  */
 async function loadCreditPackages() {
+  if (process.env.SEED_DEMO_DATA !== 'true') return
+
   try {
+    const CreditPackagesData = require('./json/CreditPackages.json')
     for (const creditPackage of CreditPackagesData) {
       await CreditPackage.findOrCreate({
         where: {
@@ -78,8 +82,17 @@ async function loadCreditPackages() {
 
 async function startServer() {
   try {
-    // Crea tablas nuevas si faltan, sin borrar usuarios, consultas o paquetes existentes.
-    await conn.sync();
+    if (process.env.NODE_ENV === 'production') {
+      if (process.env.DB_SYNC_FORCE === 'true') {
+        throw new Error('DB_SYNC_FORCE no puede estar activo en producción.')
+      }
+
+      // Falla de forma segura si la URL no usa HTTPS o si las credenciales de
+      // Tusdatos no están completas antes de aceptar consultas reales.
+      getTusdatosConfig()
+    }
+
+    await conn.sync({ force: process.env.DB_SYNC_FORCE === 'true' });
     console.log('Database synchronized.');
 
     // Ejecutamos la precarga del JSON de usuarios
@@ -89,6 +102,7 @@ async function startServer() {
     // Iniciamos el servidor
     server.listen(PORT, () => {
       console.log(`%s listening at ${PORT}`);
+      startTusdatosQueryMonitor()
     });
   } catch (error) {
     console.error('Error starting server:', error.message);

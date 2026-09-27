@@ -5,12 +5,11 @@ const postQuery = require('../controllers/Query/postQuery')
 const getQuerys = require('../controllers/Query/getQuerys')
 const applyQueryFilters = require('../controllers/Query/filters/applyQueryFilters')
 const authenticateToken = require('../middlewares/authenticateToken')
-const postTusdatosTest = require('../controllers/Query/postTusdatosTest')
-const getTusdatosTestResult = require('../controllers/Query/getTusdatosTestResult')
 const getQueryTusdatosStatus = require('../controllers/Query/getQueryTusdatosStatus')
 const postTusdatosWebhook = require('../controllers/Query/postTusdatosWebhook')
 const getQueryResult = require('../controllers/Query/getQueryResult')
 const getQueryReportPdf = require('../controllers/Query/getQueryReportPdf')
+const postQueryRetry = require('../controllers/Query/postQueryRetry')
 
 /**
  * Tusdatos llama esta ruta al finalizar una consulta individual.
@@ -33,25 +32,6 @@ router.get('/', authenticateToken, async (req, res) => {
 })
 
 /**
- * Ruta temporal para verificar la conexión con Tusdatos Sandbox.
- * No descuenta créditos ni guarda una consulta final en nuestra base de datos.
- */
-router.post(
-  '/tusdatos/test',
-  authenticateToken,
-  postTusdatosTest
-)
-
-/**
- * Ruta temporal para consultar el estado y resultado de un job de Tusdatos.
- */
-router.get(
-  '/tusdatos/test/:jobId',
-  authenticateToken,
-  getTusdatosTestResult
-)
-
-/**
  * Consulta y actualiza el estado de una consulta real perteneciente al usuario.
  */
 router.get(
@@ -65,6 +45,9 @@ router.get('/:queryId/result', authenticateToken, getQueryResult)
 
 /** PDF privado: se descarga con el JWT del usuario autenticado. */
 router.get('/:queryId/report/pdf', authenticateToken, getQueryReportPdf)
+
+/** Actualiza fuentes fallidas de una consulta finalizada, sin cobrar créditos. */
+router.post('/:queryId/retry', authenticateToken, postQueryRetry)
 
 /**
  * Crea una consulta para el usuario autenticado.

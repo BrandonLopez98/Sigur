@@ -1,15 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  downloadQueryReportPdf,
-  getQueryResult,
-} from '../../services/queriesApi'
+import { getQueryResult, retryFailedQuerySources } from '../../services/queriesApi'
 import './QueryResultPage.css'
 
 const GROUPS = [
   { key: 'altos', label: 'Hallazgos de alto riesgo', tone: 'high' },
   { key: 'medios', label: 'Hallazgos de riesgo medio', tone: 'medium' },
-  { key: 'bajos', label: 'Hallazgos de bajo riesgo', tone: 'low' },
-  { key: 'infos', label: 'Información relevante', tone: 'info' },
+  { key: 'bajos', label: 'Información de bajo impacto', tone: 'low' },
+  { key: 'infos', label: 'Información adicional', tone: 'info' },
 ]
 
 function formatDateTime(date) {
@@ -27,18 +24,11 @@ function formatSourceName(source) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
-function getEvidenceEntries(report) {
-  const skippedKeys = new Set(['dict_hallazgos', 'dest'])
-
-  return Object.entries(report || {}).filter(([key, value]) => {
-    if (skippedKeys.has(key) || value === false || value === null) return false
-    if (Array.isArray(value)) return value.length > 0
-    return typeof value === 'object' || value === true || typeof value === 'string'
-  })
-}
-
 function ResultGroup({ group, findings }) {
+  const [expanded, setExpanded] = useState(false)
   if (!findings.length) return null
+
+  const visibleFindings = expanded ? findings : findings.slice(0, 3)
 
   return (
     <section className="query-result__finding-group">
@@ -50,7 +40,7 @@ function ResultGroup({ group, findings }) {
       </div>
 
       <div className="query-result__findings">
-        {findings.map((finding, index) => (
+        {visibleFindings.map((finding, index) => (
           <article className={`query-result__finding query-result__finding--${group.tone}`} key={`${finding.codigo || finding.hallazgo}-${index}`}>
             <p className="query-result__finding-source">
               {formatSourceName(finding.fuente)}
@@ -58,6 +48,41 @@ function ResultGroup({ group, findings }) {
             <h3>{finding.hallazgo || 'Hallazgo identificado'}</h3>
             {finding.descripcion && <p>{finding.descripcion}</p>}
           </article>
+        ))}
+      </div>
+
+      {findings.length > 3 && (
+        <button
+          type="button"
+          className="query-result__show-more"
+          onClick={() => setExpanded((current) => !current)}
+        >
+          {expanded ? 'Ver menos' : `Ver ${findings.length - 3} más`}
+        </button>
+      )}
+    </section>
+  )
+}
+
+function ResultImages({ images }) {
+  const [unavailable, setUnavailable] = useState(new Set())
+  const visibleImages = images.filter((image) => !unavailable.has(image.url))
+
+  if (!visibleImages.length) return null
+
+  return (
+    <section className="query-result__images">
+      <div className="query-result__section-title">
+        <h2>Imágenes relacionadas</h2>
+        <span className="query-result__count query-result__count--info">{visibleImages.length}</span>
+      </div>
+      <p>Selecciona una imagen para verla en tamaño completo.</p>
+      <div className="query-result__image-grid">
+        {visibleImages.map((image) => (
+          <a key={image.url} href={image.url} target="_blank" rel="noreferrer" className="query-result__image-card">
+            <img src={image.url} alt={image.label} loading="lazy" onError={() => setUnavailable((current) => new Set(current).add(image.url))} />
+            <span>{image.label}</span>
+          </a>
         ))}
       </div>
     </section>
@@ -68,7 +93,8 @@ function QueryResultPage({ token, queryId, onBack }) {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [downloading, setDownloading] = useState(false)
+  const [retrying, setRetrying] = useState(false)
+  const [retryStarted, setRetryStarted] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -95,21 +121,33 @@ function QueryResultPage({ token, queryId, onBack }) {
     return GROUPS.map((group) => ({ ...group, findings: findings[group.key] || [] }))
   }, [result])
 
-  const evidenceEntries = useMemo(
-    () => getEvidenceEntries(result?.report),
-    [result]
-  )
+  const failedSources = result?.failed_sources || []
 
-  async function handleDownload() {
-    setDownloading(true)
+  async function handleRetry() {
+    setRetrying(true)
     setError('')
+
     try {
-      await downloadQueryReportPdf(token, queryId)
-    } catch (downloadError) {
-      setError(downloadError.message)
+      await retryFailedQuerySources(token, queryId)
+      setRetryStarted(true)
+    } catch (retryError) {
+      setError(retryError.message)
     } finally {
-      setDownloading(false)
+      setRetrying(false)
     }
+  }
+
+  if (retryStarted) {
+    return (
+      <main className="query-result">
+        <section className="query-result__retry-started">
+          <span aria-hidden="true">↻</span>
+          <h1>Actualización iniciada</h1>
+          <p>Estamos revisando nuevamente las fuentes que no respondieron. No se descontaron créditos de tu cuenta.</p>
+          <button type="button" onClick={onBack}>Ver progreso en Historial</button>
+        </section>
+      </main>
+    )
   }
 
   return (
@@ -138,36 +176,35 @@ function QueryResultPage({ token, queryId, onBack }) {
 
           <section className="query-result__summary" aria-label="Resumen de verificación">
             <div><span>Fuentes consultadas</span><strong>{result.summary?.sources_checked || 0}</strong></div>
-            <div><span>Fuentes con hallazgos</span><strong>{result.summary?.sources_with_findings || 0}</strong></div>
+            <div><span>Hallazgos identificados</span><strong>{result.summary?.sources_with_findings || 0}</strong></div>
+            <div><span>Fuentes con falla</span><strong className={failedSources.length ? 'query-result__summary-alert' : ''}>{failedSources.length}</strong></div>
             <div><span>Tiempo de análisis</span><strong>{result.summary?.provider_duration_seconds ? `${Math.round(result.summary.provider_duration_seconds)} s` : '—'}</strong></div>
-            {result.can_download_pdf && (
-              <button type="button" className="query-result__download" onClick={handleDownload} disabled={downloading}>
-                {downloading ? 'Descargando...' : '↓ Descargar PDF'}
-              </button>
-            )}
           </section>
 
           <section className="query-result__notice">
-            <strong>Lectura recomendada:</strong> revisa primero los hallazgos de alto riesgo y consulta las evidencias antes de tomar una decisión.
+            <strong>Cómo leer este resultado:</strong> revisa primero los hallazgos de alto riesgo. La información de bajo impacto es contextual y no representa por sí sola una alerta.
           </section>
+
+          <ResultImages images={result.images || []} />
+
+          {failedSources.length > 0 && (
+            <section className="query-result__source-failures">
+              <div>
+                <p className="query-result__eyebrow">COBERTURA INCOMPLETA</p>
+                <h2>Algunas fuentes no respondieron</h2>
+                <p>El resultado está disponible, pero estas fuentes no pudieron verificarse:</p>
+                <ul>{failedSources.map((source) => <li key={source}>{formatSourceName(source)}</li>)}</ul>
+              </div>
+              {result.retry_available && (
+                <button type="button" onClick={handleRetry} disabled={retrying}>
+                  {retrying ? 'Actualizando fuentes...' : '↻ Actualizar fuentes con falla'}
+                  <small>No consume créditos</small>
+                </button>
+              )}
+            </section>
+          )}
 
           {groups.map((group) => <ResultGroup key={group.key} group={group} findings={group.findings} />)}
-
-          <section className="query-result__evidence">
-            <div className="query-result__section-title">
-              <h2>Evidencias por fuente</h2>
-              <span className="query-result__count query-result__count--info">{evidenceEntries.length}</span>
-            </div>
-            <p>Información técnica recibida de Tusdatos para esta consulta.</p>
-            <div className="query-result__evidence-list">
-              {evidenceEntries.map(([source, value]) => (
-                <details key={source} className="query-result__evidence-item">
-                  <summary>{formatSourceName(source)}</summary>
-                  <pre>{JSON.stringify(value, null, 2)}</pre>
-                </details>
-              ))}
-            </div>
-          </section>
         </>
       )}
     </main>

@@ -67,28 +67,18 @@ export async function getQueryResult(token, queryId) {
   return data
 }
 
-/** Descarga el PDF autenticado sin exponer enlaces del proveedor en el navegador. */
-export async function downloadQueryReportPdf(token, queryId) {
-  const response = await fetch(`${API_URL}/Query/${queryId}/report/pdf`, {
+/** Actualiza fuentes fallidas de una consulta finalizada sin crear otra consulta. */
+export async function retryFailedQuerySources(token, queryId) {
+  const response = await fetch(`${API_URL}/Query/${queryId}/retry`, {
+    method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
   })
 
+  const data = await response.json()
+
   if (!response.ok) {
-    const data = await response.json().catch(() => ({}))
-    throw new Error(data.error || 'No fue posible descargar el PDF.')
+    throw new Error(data.error || 'No fue posible actualizar las fuentes con falla.')
   }
 
-  const file = await response.blob()
-  const contentDisposition = response.headers.get('content-disposition') || ''
-  const fileName = /filename="?([^";]+)"?/i.exec(contentDisposition)?.[1]
-    || `reporte-verifik-${queryId}.pdf`
-  const fileUrl = URL.createObjectURL(file)
-  const link = document.createElement('a')
-
-  link.href = fileUrl
-  link.download = fileName
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-  URL.revokeObjectURL(fileUrl)
+  return data
 }

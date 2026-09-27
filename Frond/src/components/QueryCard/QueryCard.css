@@ -43,6 +43,50 @@
   white-space: nowrap;
 }
 
+.query-card__progress {
+  width: min(100%, 250px);
+  margin-top: 9px;
+}
+
+.query-card__progress-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+  color: #8a6300;
+  font-size: 11px;
+}
+
+.query-card__progress-copy small {
+  overflow: hidden;
+  font-size: inherit;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.query-card__progress-copy strong { font-size: 11px; }
+
+.query-card__progress-track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #fff0c2;
+}
+
+.query-card__progress-bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #e5a400;
+  transition: width .35s ease;
+}
+
+.query-card__progress-bar--estimated {
+  background: repeating-linear-gradient(135deg, #e5a400 0 7px, #ffd35d 7px 14px);
+}
+
 .query-card__tags {
   display: flex;
   align-items: center;
@@ -51,8 +95,7 @@
 }
 
 .query-card__status,
-.query-card__risk,
-.query-card__pdf {
+.query-card__risk {
   border-radius: 999px;
   padding: 4px 9px;
   font-size: 11px;

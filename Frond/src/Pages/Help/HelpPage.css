@@ -1,0 +1,38 @@
+.help-page { width: min(100% - 32px, 860px); margin: 0 auto; padding: 34px 0 64px; }
+.help-page__hero { text-align: center; }
+.help-page__hero p, .help-tutorials__intro > p { margin: 0 0 10px; color: #136cfc; font-size: .75rem; font-weight: 900; letter-spacing: .1em; }
+.help-page__hero h1 { margin: 0; color: #152641; font-size: clamp(2rem, 5vw, 2.55rem); line-height: 1.1; }
+.help-page__hero > span { display: block; margin-top: 10px; color: #64748b; font-size: 1rem; }
+.help-page__tabs { display: flex; width: min(100%, 340px); margin: 28px auto 34px; padding: 4px; border-radius: 12px; background: #d8e8ff; }
+.help-page__tab { flex: 1; border: 0; border-radius: 9px; padding: 10px 8px; background: transparent; color: #58708e; font-size: .8rem; font-weight: 800; cursor: pointer; }
+.help-page__tab--active { background: #fff; color: #152641; box-shadow: 0 2px 6px rgb(21 38 65 / 12%); }
+.help-page__faq { display: grid; gap: 28px; }
+.help-group h2 { display: flex; align-items: center; gap: 9px; margin: 0 0 12px; color: #152641; font-size: 1rem; }
+.help-group h2 span { font-size: 1.08rem; }
+.help-group__questions { overflow: hidden; border: 1px solid #dbe7f3; border-radius: 15px; background: #fff; box-shadow: 0 6px 18px rgb(21 38 65 / 4%); }
+.help-question + .help-question { border-top: 1px solid #e7eef6; }
+.help-question > button { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 0; padding: 18px 20px; background: #fff; color: #1e304b; font-size: .9rem; font-weight: 800; text-align: left; cursor: pointer; gap: 16px; }
+.help-question > button:hover { background: #f8fbff; color: #136cfc; }
+.help-question--open > button { padding-bottom: 8px; color: #136cfc; }
+.help-question__symbol { display: grid; flex: 0 0 auto; width: 22px; height: 22px; place-items: center; border-radius: 50%; background: #e8f4fc; color: #136cfc; font-size: 1.15rem; line-height: 1; }
+.help-question--open .help-question__symbol { background: #136cfc; color: #fff; }
+.help-question p { margin: 0; padding: 0 56px 18px 20px; color: #617391; font-size: .88rem; line-height: 1.6; }
+.help-tutorials { border: 1px solid #dbe7f3; border-radius: 17px; padding: 26px; background: #fff; box-shadow: 0 6px 18px rgb(21 38 65 / 4%); }
+.help-tutorials__intro { margin-bottom: 22px; }
+.help-tutorials__intro h2 { margin: 0; color: #152641; font-size: 1.25rem; }
+.help-tutorials__intro span { display: block; margin-top: 7px; color: #64748b; font-size: .9rem; line-height: 1.5; }
+.help-tutorials__list { display: grid; gap: 12px; }
+.help-tutorial { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 15px; padding: 15px; border: 1px solid #dbe7f3; border-radius: 12px; background: #fbfdff; }
+.help-tutorial__number { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 11px; background: #e8f4fc; color: #136cfc; font-size: .75rem; font-weight: 900; }
+.help-tutorial h3 { margin: 0; color: #213651; font-size: .92rem; }
+.help-tutorial p { margin: 5px 0 0; color: #6d819a; font-size: .78rem; line-height: 1.45; }
+.help-tutorial button, .help-support > button { border: 0; border-radius: 9px; padding: 9px 11px; background: #136cfc; color: #fff; font-size: .76rem; font-weight: 800; white-space: nowrap; cursor: pointer; }
+.help-tutorial button:hover, .help-support > button:hover { background: #0d59d5; }
+.help-support { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 34px; padding: 20px; border: 1px solid #b6de61; border-radius: 16px; background: linear-gradient(115deg, #fff 5%, #f4ffe1); }
+.help-support > div { display: flex; align-items: center; gap: 13px; }
+.help-support > div > span { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 11px; background: #c3f84a; color: #365b0b; font-size: 1.15rem; }
+.help-support h2 { margin: 0; color: #263b56; font-size: .95rem; }
+.help-support p { margin: 5px 0 0; color: #64748b; font-size: .78rem; }
+.help-support > button { background: #152641; }
+.help-support > button:hover { background: #0e1c31; }
+@media (max-width: 640px) { .help-page { width: min(100% - 24px, 860px); padding-top: 26px; } .help-question > button { padding: 16px; font-size: .84rem; } .help-question p { padding: 0 18px 16px 16px; } .help-tutorials { padding: 18px; } .help-tutorial { grid-template-columns: auto minmax(0, 1fr); } .help-tutorial button { grid-column: 2; justify-self: start; } .help-support { align-items: flex-start; flex-direction: column; } }

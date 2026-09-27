@@ -6,6 +6,8 @@ const {
   launchTusdatosVehicleQuery,
 } = require('../../services/tusdatosApi')
 
+const INITIAL_POLL_DELAY_MS = Number(process.env.TUSDATOS_POLL_INITIAL_DELAY_MS || 60000)
+
 const DOCUMENT_TYPES = ['CC', 'CE', 'NIT', 'PP', 'PPT', 'INT']
 const VEHICLE_OWNER_TYPES = ['CC', 'CE', 'NIT', 'TI']
 
@@ -192,6 +194,10 @@ module.exports = async (input) => {
       provider_request_id: providerResponse.jobid,
       provider_response: providerResponse,
       search_name: providerResponse.nombre || data.fullName || query.search_name,
+      provider_poll_attempts: 0,
+      provider_last_polled_at: null,
+      provider_next_poll_at: new Date(Date.now() + INITIAL_POLL_DELAY_MS),
+      provider_started_at: new Date(),
     })
 
     return query

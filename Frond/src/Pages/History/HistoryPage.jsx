@@ -60,7 +60,9 @@ function HistoryPage({ token, onOpenResult }) {
         if (!cancelled) {
           setQueries(data)
 
-          // Una sola recarga liviana y solo si el webhook aún no ha terminado.
+          // El backend actualiza la base de datos. Mientras existan trabajos
+          // pendientes, releemos el historial sin consultar servicios externos
+          // directamente desde el navegador.
           const hasPendingQueries = data.some((query) =>
             ['pending', 'processing'].includes(query.status)
           )
@@ -68,7 +70,7 @@ function HistoryPage({ token, onOpenResult }) {
           if (hasPendingQueries) {
             refreshTimeoutId = window.setTimeout(() => {
               setRefreshTick((currentTick) => currentTick + 1)
-            }, 15000)
+            }, 10000)
           }
         }
       } catch (requestError) {

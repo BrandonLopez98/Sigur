@@ -3,7 +3,7 @@ import { createQuery } from '../../services/queriesApi'
 import './NewQueryPage.css'
 
 const CONSULTATION_TYPES = [
-  { code: 'CC', label: 'Cédula', identifierLabel: 'Número de cédula', placeholder: 'Ej. 1020451823', requiresDate: true },
+  { code: 'CC', label: 'Cédula', identifierLabel: 'Número de cédula', placeholder: 'Ej. 1020451823', acceptsOptionalDate: true },
   { code: 'CE', label: 'Extranjería', identifierLabel: 'Número de cédula de extranjería', placeholder: 'Ej. 312456', requiresDate: true },
   { code: 'NIT', label: 'Empresa', identifierLabel: 'Número de NIT', placeholder: 'Ej. 900987654', requiresDate: false },
   { code: 'PP', label: 'Pasaporte', identifierLabel: 'Número de pasaporte', placeholder: 'Ej. AB987654', requiresName: true },
@@ -45,20 +45,26 @@ function NewQueryPage({ token, onQueryCreated }) {
     if (selectedType.isVehicle && !ownerDocumentNumber.trim()) return setError('Ingresa el documento del propietario.')
     if (!consentGiven) return setError('Debes aceptar la autorización para realizar la consulta.')
 
+    const confirmed = window.confirm(
+      'Vas a enviar una consulta real. Se descontará 1 crédito y solo debes continuar si cuentas con la autorización del titular. ¿Deseas continuar?'
+    )
+
+    if (!confirmed) return
+
     setLoading(true)
     try {
       const query = await createQuery(token, {
         document_type: selectedType.code,
         document_number: selectedType.isVehicle ? documentNumber.trim().toUpperCase() : documentNumber.trim(),
-        expedition_date: selectedType.requiresDate ? expeditionDate : null,
+        expedition_date: (selectedType.requiresDate || selectedType.acceptsOptionalDate) && expeditionDate ? expeditionDate : null,
         full_name: selectedType.requiresName ? fullName.trim() : null,
         owner_document_type: selectedType.isVehicle ? ownerDocumentType : null,
         owner_document_number: selectedType.isVehicle ? ownerDocumentNumber.trim() : null,
         consent_given: true,
       })
 
-      setSuccess('Consulta enviada. Estamos procesando el resultado.')
-      if (onQueryCreated) onQueryCreated(query)
+      setSuccess('Consulta enviada. Actualizando tu saldo e historial...')
+      if (onQueryCreated) await onQueryCreated(query)
     } catch (requestError) {
       setError(requestError.message)
     } finally {
@@ -72,6 +78,10 @@ function NewQueryPage({ token, onQueryCreated }) {
       <h1>Nueva consulta</h1>
       <p className="new-query-page__description">Selecciona el tipo de validación e ingresa los datos solicitados.</p>
       <form className="new-query-form" onSubmit={handleSubmit}>
+        <aside className="new-query-form__real-notice" aria-label="Información sobre consultas reales">
+          <strong>Consulta real · 1 crédito</strong>
+          <span>El resultado puede tardar unos minutos y se actualizará automáticamente en Historial.</span>
+        </aside>
         <fieldset className="new-query-form__types">
           <legend>¿Qué deseas consultar?</legend>
           <div className="new-query-form__type-grid">
@@ -80,12 +90,12 @@ function NewQueryPage({ token, onQueryCreated }) {
         </fieldset>
         <label className="new-query-form__field"><span>{selectedType.identifierLabel}</span><input value={documentNumber} onChange={(event) => setDocumentNumber(event.target.value)} placeholder={selectedType.placeholder} required /></label>
         {selectedType.requiresName && <label className="new-query-form__field"><span>Nombre completo</span><input value={fullName} onChange={(event) => setFullName(event.target.value)} placeholder="Ej. Juan Pérez García" required /></label>}
-        {selectedType.requiresDate && <label className="new-query-form__field"><span>Fecha de expedición</span><input type="date" value={expeditionDate} onChange={(event) => setExpeditionDate(event.target.value)} required /></label>}
+        {(selectedType.requiresDate || selectedType.acceptsOptionalDate) && <label className="new-query-form__field"><span>{selectedType.requiresDate ? 'Fecha de expedición' : 'Fecha de expedición (opcional)'}</span><input type="date" value={expeditionDate} onChange={(event) => setExpeditionDate(event.target.value)} required={selectedType.requiresDate} /></label>}
         {selectedType.isVehicle && <div className="new-query-form__owner"><label className="new-query-form__field"><span>Tipo de documento del propietario</span><select value={ownerDocumentType} onChange={(event) => setOwnerDocumentType(event.target.value)}><option>CC</option><option>CE</option><option>NIT</option><option>TI</option></select></label><label className="new-query-form__field"><span>Documento del propietario</span><input inputMode="numeric" value={ownerDocumentNumber} onChange={(event) => setOwnerDocumentNumber(event.target.value)} placeholder="Ej. 1020451823" required /></label></div>}
         <label className="new-query-form__consent"><input checked={consentGiven} onChange={(event) => setConsentGiven(event.target.checked)} type="checkbox" /><span>Confirmo que cuento con la autorización del titular para realizar esta consulta.</span></label>
         {error && <p className="new-query-form__message">{error}</p>}
         {success && <p className="new-query-form__message new-query-form__message--success">{success}</p>}
-        <button className="new-query-form__submit" disabled={loading} type="submit">{loading ? 'Enviando consulta...' : 'Consultar'}</button>
+        <button className="new-query-form__submit" disabled={loading} type="submit">{loading ? 'Enviando consulta...' : 'Enviar consulta real'}</button>
       </form>
     </main>
   )

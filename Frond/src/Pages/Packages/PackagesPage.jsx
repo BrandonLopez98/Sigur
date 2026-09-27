@@ -161,7 +161,7 @@ function PackagesPage({ token }) {
 
               <ul className="package-card__includes">
                 <li>✓ Misma verificación Verifik</li>
-                <li>✓ Resultado disponible en PDF</li>
+                <li>✓ Resultado detallado por fuentes</li>
                 <li>✓ Historial de consultas</li>
               </ul>
 

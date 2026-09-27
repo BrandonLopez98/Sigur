@@ -9,6 +9,7 @@ import TransactionsPage from './pages/Transactions/TransactionsPage'
 import QueryResultPage from './pages/QueryResult/QueryResultPage'
 import CreditMovementsPage from './pages/Credits/CreditMovementsPage'
 import DashboardPage from './pages/Dashboard/DashboardPage'
+import HelpPage from './pages/Help/HelpPage'
 import { getCurrentUser } from './services/profileApi'
 
 const SESSION_KEY = 'verifik_session'
@@ -85,6 +86,7 @@ function App() {
       'packages',
       'transactions',
       'credits',
+      'help',
     ]
 
     if (availablePages.includes(page)) {
@@ -92,7 +94,16 @@ function App() {
     }
   }
 
-  function handleQueryCreated() {
+  async function handleQueryCreated() {
+    // El crédito se descuenta en el backend al aceptar la consulta. Volvemos a
+    // leer la billetera para que la barra superior no muestre un saldo viejo.
+    try {
+      const user = await getCurrentUser(session.token)
+      setCurrentUser(user)
+    } catch (error) {
+      console.error('No fue posible actualizar el saldo:', error)
+    }
+
     setActivePage('history')
   }
 
@@ -138,6 +149,8 @@ function App() {
     currentPage = (
       <CreditMovementsPage token={session.token} user={currentUser} />
     )
+  } else if (activePage === 'help') {
+    currentPage = <HelpPage onNavigate={handleNavigation} />
   } else if (activePage === 'query-result' && selectedQueryId) {
     currentPage = (
       <QueryResultPage
