@@ -39,22 +39,22 @@ function serializeQueryProgress(query) {
       estimated: true,
       label: data.provider_report_id
         ? 'Recuperando el reporte disponible'
-        : 'Esperando confirmación de Tusdatos',
+        : 'Esperando confirmación de Verifik',
     }
   } else if (elapsedMs >= LONG_WAIT_MS) {
     progress = {
       percentage: 65,
       estimated: true,
-      label: 'Tusdatos está tardando más de lo habitual; seguimos verificando',
+      label: 'Verifik está tardando más de lo habitual; seguimos verificando',
     }
   } else if (elapsedMs >= 60000) {
     progress = {
       percentage: 40,
       estimated: true,
-      label: 'Tusdatos continúa consultando las fuentes',
+      label: 'Verifik continúa consultando las fuentes',
     }
   } else if (data.status === 'processing') {
-    progress = { percentage: 20, estimated: true, label: 'Consultando fuentes en Tusdatos' }
+    progress = { percentage: 20, estimated: true, label: 'Verifik está consultando las fuentes' }
   } else {
     progress = { percentage: 5, estimated: true, label: 'Preparando la verificación' }
   }
