@@ -1,3 +1,5 @@
+const { getSourceStatuses } = require('./tusdatosSourceStatus')
+
 const PROVIDER_BRAND_PATTERN = /(?:https?:\/\/)?(?:dash-board\.)?tusdatos(?:\.co)?/gi
 const INTERNAL_KEY_PATTERN = /(?:authorization|password|token|provider|job_?id|request_?id|report_?id|html|pdf|logo|watermark|tusdatos)/i
 const URL_KEY_PATTERN = /(?:^|_)(?:url|uri|href|link|enlace)(?:$|_)/i
@@ -80,27 +82,20 @@ function makeSection(key, value, index) {
 
 function buildSourceIndex(report, sections) {
   const sources = new Map()
-  const results = report?.results && typeof report.results === 'object' ? report.results : {}
-  const config = report?.source_config && typeof report.source_config === 'object' ? report.source_config : {}
+  const sourceStatuses = getSourceStatuses(report)
 
-  for (const [key, value] of Object.entries(config)) {
-    if (!INTERNAL_KEY_PATTERN.test(key) && value !== false) {
-      sources.set(humanizeKey(key), { name: humanizeKey(key), status: 'consulted' })
-    }
-  }
-
-  for (const [key, value] of Object.entries(results)) {
+  for (const [key, status] of sourceStatuses.entries()) {
     if (!INTERNAL_KEY_PATTERN.test(key)) {
       sources.set(humanizeKey(key), {
         name: humanizeKey(key),
-        status: value === true ? 'finding' : 'clear',
+        status,
       })
     }
   }
 
   for (const section of sections) {
     if (!sources.has(section.title)) {
-      sources.set(section.title, { name: section.title, status: 'available' })
+      sources.set(section.title, { name: section.title, status: 'unknown' })
     }
   }
 

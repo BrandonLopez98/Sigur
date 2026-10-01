@@ -1,6 +1,7 @@
 const { Query } = require('../../db')
 const { getTusdatosReportJson } = require('../../services/tusdatosApi')
 const { buildVerifikReport } = require('../../services/verifikReport')
+const { getRiskLevel } = require('../../services/tusdatosReport')
 
 /**
  * Entrega el resultado persistido únicamente al usuario que creó la consulta.
@@ -26,7 +27,7 @@ module.exports = async (req, res, next) => {
       })
     }
 
-    const failedSources = query.result_summary?.provider_source_errors
+    const persistedFailedSources = query.result_summary?.provider_source_errors
       || query.provider_response?.result?.errores
       || []
 
@@ -51,6 +52,14 @@ module.exports = async (req, res, next) => {
     }
 
     const reportView = buildVerifikReport(report)
+    const resultForRisk = report || query.provider_response?.result || null
+    const detectedFailedSources = reportView.source_index
+      .filter((source) => ['error', 'unavailable'].includes(source.status))
+      .map((source) => source.name)
+    const failedSources = Array.from(new Set([
+      ...(Array.isArray(persistedFailedSources) ? persistedFailedSources : []),
+      ...detectedFailedSources,
+    ].filter((source) => typeof source === 'string' && source.trim())))
 
     return res.status(200).json({
       id: query.id,
@@ -58,7 +67,7 @@ module.exports = async (req, res, next) => {
       document_number: query.document_number,
       search_name: query.search_name,
       status: query.status,
-      risk_level: query.risk_level,
+      risk_level: resultForRisk ? getRiskLevel(resultForRisk) : query.risk_level,
       completed_at: query.completed_at,
       summary: query.result_summary,
       report_ready: Boolean(report),

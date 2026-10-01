@@ -3,8 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": ">=24.20.0 <25",
+    "npm": ">=11.19.0 <12"
+  },
+  "packageManager": "npm@11.19.0",
   "scripts": {
-    "start": "nodemon index.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "migrate:tusdatos": "node scripts/migrateTusdatosProduction.js",
     "test": "node --test"
   },
@@ -20,8 +26,10 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.0",
-    "nodemon": "^3.0.1",
     "pg": "^8.7.1",
     "sequelize": "^6.6.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

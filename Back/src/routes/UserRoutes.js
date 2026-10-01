@@ -1,45 +1,57 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
-const postUser = require('../controllers/User/PostUser');   // El unitario que ya te funciona
-const postUsers = require('../controllers/User/PostUsers'); // El masivo que acabamos de crear
+const postUser = require('../controllers/User/PostUser')
 const getUsers = require('../controllers/User/getUsers')
+const authenticateToken = require('../middlewares/authenticateToken')
+const authorizeRoles = require('../middlewares/authorizeRoles')
 
-router.get('/', async (req, res) => {
+/**
+ * El directorio de usuarios contiene datos privados y solo está disponible
+ * para administradores autenticados.
+ */
+router.get('/', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
-    const { email } = req.query; // Capturamos el email si viene en la URL (ej: /user?email=prueba@correo.com)
-    
-    const resultado = await getUsers(email);
-    return res.status(200).json(resultado);
+    const resultado = await getUsers(req.query.email)
+    return res.status(200).json(resultado)
   } catch (error) {
-    return res.status(404).json({ error: error.message });
+    return res.status(error.status || 500).json({ error: error.message })
   }
-});
+})
 
+/**
+ * Registro público de una cuenta cliente. El solicitante no puede elegir su
+ * rol, estado ni utilizar este endpoint como cargador masivo.
+ */
 router.post('/', async (req, res) => {
   try {
-    // Validar si el cuerpo es un arreglo (registro masivo)
     if (Array.isArray(req.body)) {
-      const resultadoMasivo = await postUsers(req.body);
-      return res.status(201).json(resultadoMasivo);
-    } 
-    
-    // Si es un objeto único (registro individual)
-const { email, password, status, role } = req.body
+      return res.status(400).json({
+        error: 'El registro masivo no está disponible en esta ruta.',
+      })
+    }
 
-if (!email || !password) {
-  return res.status(400).json({
-    error: 'El correo electrónico y la contraseña son obligatorios.',
-  })
-}
+    const { email, password, role, status } = req.body || {}
 
-const nuevoUsuario = await postUser({ email, password, status, role })
+    if (role !== undefined || status !== undefined) {
+      return res.status(400).json({
+        error: 'El rol y el estado de la cuenta son administrados por Verifik.',
+      })
+    }
 
-return res.status(201).json(nuevoUsuario);
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'El correo electrónico y la contraseña son obligatorios.',
+      })
+    }
+
+    const nuevoUsuario = await postUser({ email, password })
+
+    return res.status(201).json(nuevoUsuario)
 
   } catch (error) {
-    return res.status(400).json({ error: error.message });
+    return res.status(error.status || 400).json({ error: error.message })
   }
-});
+})
 
-module.exports = router;
+module.exports = router

@@ -1,16 +1,43 @@
-# React + Vite
+# Frontend de Verifik
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interfaz de Verifik construida con React y Vite.
 
-Currently, two official plugins are available:
+## Configuración
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Desde la raíz del repositorio:
 
-## React Compiler
+```bash
+cp Frond/.env.example Frond/.env
+npm ci --prefix Frond
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+`VITE_API_URL` debe apuntar al backend correspondiente al entorno. No incluyas secretos en
+variables `VITE_*`: Vite incorpora esos valores en el código entregado al navegador.
 
-## Expanding the ESLint configuration
+## Comandos
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+# Desarrollo
+npm run dev
+
+# Validación estática
+npm run lint
+
+# Compilación de producción
+npm run build
+
+# Vista previa local de la compilación
+npm run preview
+```
+
+El servidor de desarrollo escucha normalmente en `http://localhost:5173`. La compilación queda en
+`Frond/dist`.
+
+`vite preview` no es un servidor recomendado para producción. Publica `dist` mediante un servicio
+de archivos estáticos con HTTPS, encabezados de seguridad y una estrategia de reversión del
+artefacto.
+
+Actualmente no existe una suite automatizada del frontend; su incorporación está prevista en las
+fases de exactitud y calidad del plan técnico.
+
+La preparación completa del repositorio está documentada en [../README.md](../README.md).

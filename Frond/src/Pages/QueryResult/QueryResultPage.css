@@ -69,7 +69,9 @@
 .query-result__source-dot { grid-row: 1 / 3; width: 9px; height: 9px; border-radius: 50%; background: #94a3b8; }
 .query-result__source-dot--finding { background: #f59e0b; }
 .query-result__source-dot--clear { background: #10b981; }
-.query-result__source-dot--available { background: #136cfc; }
+.query-result__source-dot--unavailable { background: #f97316; }
+.query-result__source-dot--error { background: #dc2626; }
+.query-result__source-dot--unknown { background: #64748b; }
 .query-result__source-detail { overflow: hidden; border: 1px solid #d9e4f0; border-radius: 10px; background: #fff; }
 .query-result__source-detail + .query-result__source-detail { margin-top: 9px; }
 .query-result__source-detail > button { display: flex; align-items: center; justify-content: space-between; gap: 18px; width: 100%; border: 0; padding: 14px 16px; background: #f8fbff; color: #152641; text-align: left; cursor: pointer; }

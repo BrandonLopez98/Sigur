@@ -87,6 +87,10 @@ async function startServer() {
         throw new Error('DB_SYNC_FORCE no puede estar activo en producción.')
       }
 
+      if (process.env.SEED_DEMO_DATA === 'true') {
+        throw new Error('SEED_DEMO_DATA no puede estar activo en producción.')
+      }
+
       // Falla de forma segura si la URL no usa HTTPS o si las credenciales de
       // Tusdatos no están completas antes de aceptar consultas reales.
       getTusdatosConfig()

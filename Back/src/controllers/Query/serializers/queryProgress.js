@@ -1,3 +1,5 @@
+const { getRiskLevel } = require('../../../services/tusdatosReport')
+
 const LONG_WAIT_MS = Number(process.env.TUSDATOS_LONG_WAIT_MS || 180000)
 
 function getElapsedMs(query) {
@@ -9,6 +11,14 @@ function getElapsedMs(query) {
 function serializeQueryProgress(query) {
   const data = typeof query.toJSON === 'function' ? query.toJSON() : { ...query }
   const response = data.provider_response || {}
+  const resultForRisk = response.report || response.result || null
+
+  // Recalcula solo la presentación de consultas antiguas. Así, un riesgo bajo
+  // persistido con la regla anterior no sigue ocultando errores de cobertura.
+  if (data.status === 'completed' && resultForRisk) {
+    data.risk_level = getRiskLevel(resultForRisk)
+  }
+
   const rawPercentage = response.percentage ?? response.result?.percentage
   const parsedPercentage = Number(rawPercentage)
   const providerPercentage = Number.isFinite(parsedPercentage)

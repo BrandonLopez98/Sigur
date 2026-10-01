@@ -8,21 +8,21 @@ const { serializeQueryProgress } = require('./serializers/queryProgress')
  */
 module.exports = async (user_id) => {
   try {
-    // Si llega un id, buscamos únicamente el query con ese id
-    if (user_id) {
-      const queries = await Query.findAll({
-        where: { user_id },
-        // El historial siempre muestra la consulta más reciente primero.
-        order: [['created_at', 'DESC']],
-      });
-      return queries.map(serializeQueryProgress)
+    if (!user_id) {
+      const error = new Error('Usuario autenticado requerido.')
+      error.status = 401
+      throw error
     }
-    // Si no llega ningún id, devolvemos todos los usuarios
-    const querys = await Query.findAll({
+
+    const queries = await Query.findAll({
+      where: { user_id },
+      // El historial siempre muestra la consulta más reciente primero.
       order: [['created_at', 'DESC']],
-    });
-    return querys.map(serializeQueryProgress);
+    })
+
+    return queries.map(serializeQueryProgress)
   } catch (error) {
-    throw new Error(`Error al obtener los usuarios: ${error.message}`);
+    if (error.status) throw error
+    throw new Error(`Error al obtener las consultas: ${error.message}`)
   }
-}; 
+}

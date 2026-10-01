@@ -1,22 +1,30 @@
-const { User } = require('../../db');
+const { User } = require('../../db')
+
+const SAFE_USER_ATTRIBUTES = {
+  exclude: ['password_hash', 'google_id'],
+}
 
 module.exports = async (email) => {
-  try {
-    // Si llega un email, buscamos únicamente ese usuario
-    if (email) {
-      const user = await User.findOne({ where: { email } });
-      
-      if (!user) {
-        throw new Error(`No se encontró ningún usuario con el correo: ${email}`);
-      }
-      
-      return user; // Retorna un objeto con el usuario encontrado
+  // Esta función solo se expone detrás del rol administrador. Además, la
+  // selección explícita evita filtrar credenciales incluso si se reutiliza.
+  if (email) {
+    const normalizedEmail = email.trim().toLowerCase()
+    const user = await User.findOne({
+      where: { email: normalizedEmail },
+      attributes: SAFE_USER_ATTRIBUTES,
+    })
+
+    if (!user) {
+      const error = new Error('Usuario no encontrado.')
+      error.status = 404
+      throw error
     }
 
-    // Si no llega ningún email, devolvemos todos los usuarios
-    const users = await User.findAll();
-    return users;
-  } catch (error) {
-    throw new Error(`Error al obtener los usuarios: ${error.message}`);
+    return user
   }
-};
+
+  return User.findAll({
+    attributes: SAFE_USER_ATTRIBUTES,
+    order: [['created_at', 'DESC']],
+  })
+}

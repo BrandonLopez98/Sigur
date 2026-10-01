@@ -30,7 +30,9 @@ module.exports = async ({ email, password }) => {
   // Evita diferencias por espacios o mayúsculas en el correo.
   const normalizedEmail = email.trim().toLowerCase();
 
-  const user = await User.findOne({
+  // password_hash está excluido por defecto del modelo y solo se habilita en
+  // este punto controlado para validar las credenciales.
+  const user = await User.unscoped().findOne({
     where: { email: normalizedEmail },
   });
 

@@ -1,26 +1,14 @@
 [
   {
-    "email": "esteban@exale.com",
-    "passwordHash": "Verifik2026!"
+    "email": "demo.arrendador@example.invalid",
+    "passwordHash": "DEMO_ONLY_CHANGE_ME_01!"
   },
   {
-    "email": "estean@example.m",
-    "passwordHash": "tu_password_encriptado_o_texto"
+    "email": "demo.empleador@example.invalid",
+    "passwordHash": "DEMO_ONLY_CHANGE_ME_02!"
   },
   {
-    "email": "estan@exple.com",
-    "passwordHash": "tu_password_encriptado_o_texto"
-  },
-  {
-    "email": "maria@example.com",
-    "passwordHash": "tu_password_encriptado_o_texto"
-  },
-  {
-    "email": "admin@verifik.com",
-    "passwordHash": "tu_password_encriptado_o_texto"
-  },
-  {
-    "email": "andres@example.com",
-    "passwordHash": "tu_password_encriptado_o_texto"
+    "email": "demo.admin@example.invalid",
+    "passwordHash": "DEMO_ONLY_CHANGE_ME_03!"
   }
 ]

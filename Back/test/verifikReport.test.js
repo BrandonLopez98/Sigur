@@ -29,3 +29,30 @@ test('crea una vista legible sin URLs ni metadatos internos', () => {
   assert.equal(JSON.stringify(view).includes('https://'), false)
   assert.deepEqual(view.source_index.map((source) => source.status), ['clear', 'finding'])
 })
+
+test('diferencia fuentes limpias, fallidas, no disponibles y desconocidas', () => {
+  const view = buildVerifikReport({
+    source_config: { configurada_sin_respuesta: true },
+    results: {
+      con_hallazgo: true,
+      sin_hallazgo: false,
+      con_error: 'Error',
+      no_disponible: 'No disponible',
+      sin_confirmar: null,
+    },
+    errores: ['fuente_caida'],
+  })
+  const statuses = Object.fromEntries(
+    view.source_index.map((source) => [source.name, source.status])
+  )
+
+  assert.deepEqual(statuses, {
+    'Con error': 'error',
+    'Con hallazgo': 'finding',
+    'Configurada sin respuesta': 'unknown',
+    'Fuente caida': 'unavailable',
+    'No disponible': 'unavailable',
+    'Sin confirmar': 'unknown',
+    'Sin hallazgo': 'clear',
+  })
+})

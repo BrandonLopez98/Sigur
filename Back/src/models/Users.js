@@ -39,6 +39,13 @@ module.exports = (sequelize) => {
       allowNull: false,
       defaultValue: 'client',    },
   }, {
+    // Las credenciales quedan excluidas por defecto de cualquier lectura. Los
+    // dos flujos que necesitan verificar una contraseña usan unscoped().
+    defaultScope: {
+      attributes: {
+        exclude: ['password_hash'],
+      },
+    },
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at'

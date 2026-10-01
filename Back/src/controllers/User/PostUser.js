@@ -6,7 +6,7 @@ const SALT_ROUNDS = 12
 /**
  * Registra un usuario y crea su billetera con saldo inicial en cero.
  */
-module.exports = async ({ email, password, status, role }) => {
+module.exports = async ({ email, password }) => {
   const normalizedEmail = email?.trim().toLowerCase()
 
   if (!normalizedEmail || !password) {
@@ -29,8 +29,8 @@ module.exports = async ({ email, password, status, role }) => {
       {
         email: normalizedEmail,
         password_hash: passwordHash,
-        status,
-        role,
+        status: 'active',
+        role: 'client',
       },
       { transaction }
     )

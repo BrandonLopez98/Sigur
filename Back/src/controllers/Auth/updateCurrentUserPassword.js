@@ -34,7 +34,9 @@ async function updateCurrentUserPassword(userId, passwordData) {
     throw error
   }
 
-  const user = await User.findByPk(userId)
+  // password_hash está excluido por defecto; este flujo autenticado necesita
+  // leerlo únicamente para comprobar la contraseña actual.
+  const user = await User.unscoped().findByPk(userId)
 
   if (!user) {
     const error = new Error('Usuario no encontrado.')
